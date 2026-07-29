@@ -1,23 +1,88 @@
 # ==========================================
-# Hyprland & Core System Packages
+# Hyprland
 # ==========================================
 hyprland
+hyprlock
+hypridle
+
+# ==========================================
+# UI
+# ==========================================
 waybar
-rofi-wayland
-mako
+wlogout
+swaync
+
+# ==========================================
+# Terminal
+# ==========================================
 kitty
-thunar
+zsh
+neovim
+yazi
+
+# ==========================================
+# File Manager
+# ==========================================
+nautilus
+
+# ==========================================
+# Theming
+# ==========================================
+matugen
+
+# ==========================================
+# System
+# ==========================================
 networkmanager
 network-manager-applet
+
 pipewire
 wireplumber
-pamixer
+pavucontrol
+
+polkit-kde-agent
+
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
+
+# ==========================================
+# Utilities
+# ==========================================
 brightnessctl
+playerctl
+pamixer
+
+wl-clipboard
+
 grim
 slurp
 swappy
+
+swww
+
+fastfetch
+btop
+cava
+
 git
 curl
 wget
-zsh
-fastfetch
+jq
+zip
+unzip
+
+noto-fonts
+noto-fonts-emoji
+
+ttf-iosevka-nerd
+
+ttf-nerd-fonts-symbols-common
+ttf-nerd-fonts-symbols-mono
+
+otf-font-awesome
+
+sddm
+
+qt6-svg
+qt6-declarative
+qt5-quickcontrols2
