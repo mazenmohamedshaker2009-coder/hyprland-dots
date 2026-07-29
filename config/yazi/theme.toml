@@ -1,0 +1,25 @@
+[manager]
+cwd = { fg = "#a9c7ff" }
+
+#رؤوس الجداول والعناصر المحددة
+synced = { fg = "#bdc7dc" }
+
+[status]
+separator_open = ""
+separator_close = ""
+
+mode_normal = { fg = "#09305f", bg = "#a9c7ff", bold = true }
+mode_select = { fg = "#283141", bg = "#bdc7dc", bold = true }
+mode_unset = { fg = "#690005", bg = "#ffb4ab", bold = true }
+
+progress_label = { fg = "#e2e2e9", bold = true }
+progress_normal = { fg = "#37393e", bg = "#1d2024" }
+progress_error = { fg = "#ffb4ab", bg = "#1d2024" }
+
+[filetype]
+rules = [
+    { mime = "image/*", fg = "#dcbce1" },
+    { mime = "video/*", fg = "#a9c7ff" },
+    { mime = "audio/*", fg = "#bdc7dc" },
+    { mime = "application/zip", fg = "#ffb4ab" },
+]

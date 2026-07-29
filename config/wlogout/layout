@@ -1,0 +1,27 @@
+{
+    "label": "shutdown",
+    "action": "systemctl poweroff",
+    "text": "",
+    "keybind": "s"
+    "width": 0.5,
+    "height": 0.5,
+    "circular": false
+}
+{
+    "label": "logout",
+    "action" : "hyprctl dispatch 'hl.dsp.exit()'",
+    "text": "",
+    "keybind": "e"
+    "width": 0.5,
+    "height": 0.5,
+    "circular": false
+}
+{
+    "label": "reboot",
+    "action": "systemctl reboot",
+    "text": "",
+    "keybind": "r"
+    "width": 0.5,
+    "height": 0.5,
+    "circular": false
+}

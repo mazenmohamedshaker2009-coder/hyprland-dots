@@ -1,0 +1,56 @@
+@import "../themes/current/colors.css";
+
+window#waybar {
+    background: transparent;
+    border: none;
+}
+
+* {
+    font-family: "Inter", "Symbols Nerd Font";
+    min-height: 0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+#clock.time,
+#clock.date,
+#workspaces {
+    background: alpha(@surface_container, .92);
+
+    color: @on_surface;
+
+    border: 1px solid alpha(@outline, .35);
+
+    border-radius: 14px;
+
+    padding: 0 10px;
+
+    margin: 4px 10px;
+}
+
+#workspaces button {
+
+    background: transparent;
+
+    color: @on_surface_variant;
+
+    border-radius: 8px;
+
+    padding: 0 10px;
+
+    margin: 4px;
+}
+
+#workspaces button.active {
+
+    background: @primary;
+
+    color: @on_primary;
+}
+
+#workspaces button:hover {
+
+    background: alpha(@primary,.15);
+
+    color: @primary;
+}

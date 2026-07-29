@@ -1,0 +1,38 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 12,
+    "border-radius": 12,
+    "spacing": 10,
+
+    "modules-left": [
+        "clock#time"
+    ],
+
+    "modules-center": [
+        "hyprland/workspaces"
+    ],
+
+    "modules-right": [
+        "clock#date"
+    ],
+
+    "clock#time": {
+        "format": "{:%H:%M}",
+        "tooltip": false
+    },
+
+    "clock#date": {
+        "format": "{:%d %b}",
+        "tooltip": false
+    },
+
+   "hyprland/workspaces": {
+    "format": "{id}",
+    "all-outputs": true,
+    "persistent-workspaces": {
+        "*": 5
+    }
+}
+
+}

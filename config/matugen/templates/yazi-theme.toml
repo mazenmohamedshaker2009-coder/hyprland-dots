@@ -1,0 +1,25 @@
+[manager]
+cwd = { fg = "{{colors.primary.default.hex}}" }
+
+#رؤوس الجداول والعناصر المحددة
+synced = { fg = "{{colors.secondary.default.hex}}" }
+
+[status]
+separator_open = ""
+separator_close = ""
+
+mode_normal = { fg = "{{colors.on_primary.default.hex}}", bg = "{{colors.primary.default.hex}}", bold = true }
+mode_select = { fg = "{{colors.on_secondary.default.hex}}", bg = "{{colors.secondary.default.hex}}", bold = true }
+mode_unset = { fg = "{{colors.on_error.default.hex}}", bg = "{{colors.error.default.hex}}", bold = true }
+
+progress_label = { fg = "{{colors.on_surface.default.hex}}", bold = true }
+progress_normal = { fg = "{{colors.surface_bright.default.hex}}", bg = "{{colors.surface_container.default.hex}}" }
+progress_error = { fg = "{{colors.error.default.hex}}", bg = "{{colors.surface_container.default.hex}}" }
+
+[filetype]
+rules = [
+    { mime = "image/*", fg = "{{colors.tertiary.default.hex}}" },
+    { mime = "video/*", fg = "{{colors.primary.default.hex}}" },
+    { mime = "audio/*", fg = "{{colors.secondary.default.hex}}" },
+    { mime = "application/zip", fg = "{{colors.error.default.hex}}" },
+]

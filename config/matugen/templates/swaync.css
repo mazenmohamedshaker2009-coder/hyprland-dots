@@ -1,0 +1,17 @@
+@import "colors.css";
+
+/* هنا ممكن تضيف أي تعديلات تصميم خاصة بك لو حابب */
+@define-color background #111318;
+@define-color surface #1e1f25;
+@define-color surface2 #282a2f;
+
+@define-color primary #adc6ff;
+@define-color secondary #bfc6dc;
+
+@define-color text #e2e2e9;
+@define-color text2 #c4c6d0;
+
+@define-color outline #8e9099;
+
+@define-color error #ffb4ab;
+

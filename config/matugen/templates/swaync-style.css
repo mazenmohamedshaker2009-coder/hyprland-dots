@@ -1,0 +1,69 @@
+@define-color bg {{colors.surface.default.hex}};
+@define-color bg-alt {{colors.surface_container.default.hex}};
+@define-color fg {{colors.on_surface.default.hex}};
+@define-color primary {{colors.primary.default.hex}};
+@define-color primary-fg {{colors.on_primary.default.hex}};
+@define-color urgent {{colors.error.default.hex}};
+
+
+
+/* حاوية الإشعار الأساسية (تعديل شكل الإشعار نفسه) */
+.notification {
+  background: alpha(@bg-alt, 0.95);
+  border: 1px solid alpha(@primary, 0.25);
+  border-radius: 16px; /* حواف دائرية عصرية */
+  padding: 12px;
+  margin: 8px 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); /* ظل فخم */
+  color: @fg;
+}
+
+/* تخصيص محتوى الإشعار (العنوان والنص) */
+.notification-content {
+  margin: 4px;
+}
+
+.notification-default-action {
+  background: transparent;
+  border-radius: 12px;
+  color: @fg;
+}
+
+.notification-default-action:hover {
+  background: alpha(@primary, 0.1); /* تأثير لمس خفيف عند الماوس */
+}
+
+/* عنوان الإشعار (يأخذ لون الـ Primary المستخرج من Matugen) */
+.summary {
+  font-weight: bold;
+  font-size: 14px;
+  color: @primary;
+}
+
+/* نص الرسالة داخل الإشعار */
+.body {
+  font-size: 13px;
+  color: @fg;
+  margin-top: 4px;
+}
+
+/* أيقونة التطبيق داخل الإشعار */
+.notification image {
+  border-radius: 10px;
+  margin-right: 8px;
+}
+
+/* أزرار الإجراءات داخل الإشعار (لو الإشعار فيه أزرار تفاعلية) */
+.notification action-button {
+  background: @bg;
+  color: @fg;
+  border: 1px solid alpha(@primary, 0.3);
+  border-radius: 8px;
+  margin-top: 6px;
+  padding: 4px 10px;
+}
+
+.notification action-button:hover {
+  background: @primary;
+  color: @primary-fg;
+}
