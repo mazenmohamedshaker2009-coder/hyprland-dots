@@ -1,0 +1,23 @@
+# ==========================================
+# Hyprland & Core System Packages
+# ==========================================
+hyprland
+waybar
+rofi-wayland
+mako
+kitty
+thunar
+networkmanager
+network-manager-applet
+pipewire
+wireplumber
+pamixer
+brightnessctl
+grim
+slurp
+swappy
+git
+curl
+wget
+zsh
+fastfetch
