@@ -33,10 +33,6 @@ A minimal, personal Hyprland setup built for speed, simplicity and everyday use.
 
 ![Workspace](screenshots/workspace.png)
 
-### Workspace Overview
-
-![Overview](screenshots/overview.png)
-
 ---
 
 ## Features
