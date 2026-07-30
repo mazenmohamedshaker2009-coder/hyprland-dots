@@ -1,10 +1,10 @@
 #!/bin/bash
 
-source "$(dirname "$0")/utils.sh"
-source "$(dirname "$0")/variables.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/variables.sh"install_packages() {
 
-install_packages() {
-    print_info "Updating system and installing packages..."
+
+print_info "Updating system and installing packages..."
 
     if [ ! -f "$PACKAGES_FILE" ]; then
         print_error "Packages file (packages.txt) not found!"

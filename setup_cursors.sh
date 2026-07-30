@@ -1,7 +1,8 @@
 #!/bin/bash
 
-source "$(dirname "$0")/utils.sh"
-source "$(dirname "$0")/variables.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/variables.sh"
+
 
 setup_cursors() {
     print_info "Setting up cursor theme (Bibata-Modern-Ice)..."

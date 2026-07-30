@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# استيراد الأدوات والمتغيرات المشتركة
-source "$(dirname "$0")/utils.sh"
-source "$(dirname "$0")/variables.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/variables.sh"
 
 print_info "Running final post-installation setup..."
 
@@ -80,4 +79,4 @@ case "$reboot_choice" in
     *)
         print_success "Setup finished! You can reboot manually later."
         ;;
-es:
+esac

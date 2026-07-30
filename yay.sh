@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# استيراد الأدوات والمتغيرات المشتركة
-source "$(dirname "$0")/utils.sh"
-source "$(dirname "$0")/variables.sh"
+
+source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/variables.sh"
+
 
 install_yay() {
     # التحقق مما إذا كان yay مثبتاً مسبقاً
