@@ -55,7 +55,7 @@ if [ -f "$default_wallpaper" ]; then
     else
         print_error "Error: '$inputpath' does not exist!"
         exit 1
-    }
+    fi
 
     print_info "Selected wallpaper: $wallpath"
 
