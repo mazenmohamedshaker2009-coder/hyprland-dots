@@ -20,8 +20,13 @@ install_yay() {
         [yY][eE][sS]|[yY])
             print_info "Proceeding with yay installation..."
             
-            # التأكد من توفر الأدوات الأساسية للبناء وجلب المساعد
-            ensure_packages "base-devel" "git"
+            # التأكد التلقائي من توفر وتثبيت أدوات البناء الأساسية لمنع أخطاء makepkg
+            print_info "Ensuring build essentials (base-devel, git) are installed..."
+            if command -v pacman &> /dev/null; then
+                sudo pacman -S --needed --noconfirm base-devel git
+            else
+                ensure_packages "base-devel" "git"
+            fi
 
             # إنشاء مجلد مؤقت واستنساخ مستودع yay
             temp_dir=$(mktemp -d)
@@ -35,7 +40,7 @@ install_yay() {
                 else
                     print_error "Failed to clone yay repository from AUR."
                 fi
-                # تنظيف المجلد المؤقت
+                # تنظيف المجلد المؤقت والرجوع للخلف بأمان
                 cd ~
                 rm -rf "$temp_dir"
             else
