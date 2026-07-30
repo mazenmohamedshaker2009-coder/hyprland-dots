@@ -10,19 +10,51 @@ source "$SCRIPT_DIR/variables.sh"
 
 print_info "Running final post-installation setup..."
 
-# 1. تشغيل أمر الـ wallpaper وإرسال المسار أوتوماتيكياً للـ read عبر Here-String
+# 1. تشغيل والتحقق من الـ daemon الخاص بـ awww وتمرير الخلفية
 storage_dir="$HOME/.config/hypr/wallpapers"
 default_wallpaper="$storage_dir/default.png"
 
 if [ -f "$default_wallpaper" ]; then
-    print_info "Triggering wallpaper and passing the path automatically..."
+    print_info "Checking and initializing wallpaper daemon (awww)..."
     
-    if command -v wallpaper &> /dev/null; then
-        wallpaper <<EOF
+    # التأكد من تشغيل الـ daemon يدوياً إذا لم يكن يعمل
+    if command -v awww &> /dev/null; then
+        if ! pgrep -x "awww" > /dev/null; then
+            print_info "Starting awww daemon in the background..."
+            awww &
+            sleep 1
+        fi
+
+        # آلية تحقق متكررة لضمان جاهزية الـ daemon واستجابته
+        max_attempts=5
+        attempt=1
+        daemon_ready=false
+
+        while [ $attempt -le $max_attempts ]; do
+            if awww query &> /dev/null; then
+                daemon_ready=true
+                break
+            fi
+            print_warning "Waiting for awww daemon to be ready (Attempt $attempt/$max_attempts)..."
+            sleep 1
+            ((attempt++))
+        done
+
+        if [ "$daemon_ready" = true ]; then
+            print_info "Triggering wallpaper and passing the path automatically..."
+            if command -v wallpaper &> /dev/null; then
+                wallpaper <<EOF
 $default_wallpaper
 EOF
+            else
+                # تنفيذ مباشر كاحتياطي لو أمر wallpaper غير مسجل في الـ PATH
+                awww img "$default_wallpaper"
+            fi
+        else
+            print_error "Failed to connect to awww daemon after multiple attempts."
+        fi
     else
-        print_warning "Custom 'wallpaper' command not found in PATH yet."
+        print_warning "Command 'awww' not found in PATH."
     fi
 
     if command -v matugen &> /dev/null; then
@@ -61,7 +93,7 @@ if [ -d "$project_dir" ] && [ "$project_dir" != "$HOME" ] && [ "$project_dir" !=
     print_success "Project directory cleaned up successfully."
 fi
 
-# 6. سؤال الريبوت النهائي (تم ضبطه ليكون غير تفاعلي تماماً أو يدعم الـ Default لتجنب تعليق السكربت)
+# 6. سؤال الريبوت النهائي
 echo -ne "\n"
 read -t 5 -p "Installation is fully completed! Do you want to reboot now? (y/N) [Auto-abort in 5s]: " reboot_choice || reboot_choice="n"
 case "$reboot_choice" in
