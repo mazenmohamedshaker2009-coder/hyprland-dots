@@ -17,11 +17,11 @@ default_wallpaper="$storage_dir/default.png"
 if [ -f "$default_wallpaper" ]; then
     print_info "Checking and initializing wallpaper daemon (awww)..."
     
-    # التأكد من تشغيل الـ daemon يدوياً إذا لم يكن يعمل
     if command -v awww &> /dev/null; then
         if ! pgrep -x "awww" > /dev/null; then
             print_info "Starting awww daemon in the background..."
-            awww &
+            # تشغيل الـ daemon بالطريقة الصحيحة باستخدام subcommand الـ daemon
+            awww daemon &
             sleep 1
         fi
 
@@ -47,7 +47,6 @@ if [ -f "$default_wallpaper" ]; then
 $default_wallpaper
 EOF
             else
-                # تنفيذ مباشر كاحتياطي لو أمر wallpaper غير مسجل في الـ PATH
                 awww img "$default_wallpaper"
             fi
         else
@@ -59,7 +58,8 @@ EOF
 
     if command -v matugen &> /dev/null; then
         print_info "Generating system colors with matugen..."
-        matugen image "$default_wallpaper" --prefer dark || matugen image "$default_wallpaper" || true
+        # تم تصحيح القيمة إلى darkness بناءً على مخرجات الخطأ في الصورة
+        matugen image "$default_wallpaper" --prefer darkness || matugen image "$default_wallpaper" || true
     fi
 else
     print_error "Default wallpaper not found at $default_wallpaper!"
