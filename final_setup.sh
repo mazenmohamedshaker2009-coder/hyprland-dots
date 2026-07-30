@@ -11,13 +11,13 @@ source "$SCRIPT_DIR/variables.sh"
 print_info "Running final post-installation setup..."
 
 # ==========================================
-# 1. دمج وتعديل سكربت الخلفيات والألوان
+# 1. Merge and modify wallpaper and color script
 # ==========================================
 storage_dir="$HOME/.config/hypr/wallpapers"
 storagepath="$storage_dir/.current"
 default_wallpaper="$storage_dir/default.png"
 
-# التأكد من وجود مجلد التخزين
+# Ensure the storage directory exists
 mkdir -p "$storage_dir"
 
 if [ -f "$default_wallpaper" ]; then
@@ -26,7 +26,7 @@ if [ -f "$default_wallpaper" ]; then
     read -e -i "$default_wallpaper" -p "Enter your wallpaper path or folder: " inputpath
     inputpath="${inputpath:-$default_wallpaper}"
 
-    # معالجة اختصار الـ tilde (~)
+    # Handle tilde (~) expansion
     if [[ "$inputpath" == ~* ]]; then
         inputpath="${inputpath/#\~/$HOME}"
     elif [[ "$inputpath" != /* ]]; then
@@ -39,7 +39,7 @@ if [ -f "$default_wallpaper" ]; then
         fi
     fi
 
-    # فحص المدخل: هل هو مجلد أم ملف؟
+    # Check the input: is it a folder or a file?
     if [ -d "$inputpath" ]; then
         print_info "Folder detected. Selecting a random wallpaper..."
         
@@ -58,13 +58,13 @@ if [ -f "$default_wallpaper" ]; then
 
     print_info "Selected wallpaper: $wallpath"
 
-    # دالة حفظ الخلفية
+    # Wallpaper save function
     save_wall_function() {
         rm -rf "$storagepath"
         cp -f "$wallpath" "$storagepath"
     }
 
-    # دالة تطبيق الخلفية وتوليد الألوان وتحديث الحزم
+    # Wallpaper apply function, generate colors, and update packages
     apply_wall_function() {
         if command -v awww &> /dev/null; then
             if ! pgrep -x "awww-daemon" > /dev/null; then
@@ -101,7 +101,7 @@ else
 fi
 
 # ==========================================
-# 2. نقل وتنظيف إعدادات Zsh و Oh-My-Zsh بأمان
+# 2. Safely move and clean Zsh and Oh-My-Zsh configuration
 # ==========================================
 print_info "Configuring Zsh and Oh-My-Zsh environment..."
 
@@ -154,7 +154,7 @@ else
 fi
 
 # ==========================================
-# 3. إعادة تحميل إضافات Hyprland
+# 3. Reload Hyprland plugins
 # ==========================================
 print_info "Reloading Hyprland plugins..."
 if command -v hyprpm &> /dev/null; then
@@ -162,7 +162,7 @@ if command -v hyprpm &> /dev/null; then
 fi
 
 # ==========================================
-# 4. حذف مجلد المشروع المؤقت
+# 4. Delete temporary project directory
 # ==========================================
 print_info "Cleaning up installation files..."
 project_dir="$(dirname "$(realpath "$0")")"
@@ -172,7 +172,7 @@ if [ -d "$project_dir" ] && [ "$project_dir" != "$HOME" ] && [ "$project_dir" !=
 fi
 
 # ==========================================
-# 5. سؤال الريبوت النهائي
+# 5. Final reboot prompt
 # ==========================================
 echo -ne "\n"
 read -t 5 -p "Installation is fully completed! Do you want to reboot now? (y/N) [Auto-abort in 5s]: " reboot_choice || reboot_choice="n"

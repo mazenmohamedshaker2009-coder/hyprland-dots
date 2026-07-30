@@ -6,7 +6,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/variables.sh"
 
 
 install_yay() {
-    # التحقق مما إذا كان yay مثبتاً مسبقاً
+    # Check if yay is already installed
     if command -v yay &> /dev/null; then
         print_success "yay is already installed on your system."
         return 0
@@ -14,14 +14,14 @@ install_yay() {
 
     print_info "AUR Helper (yay) is required to install some necessary packages."
     
-    # طلب تأكيد صريح من المستخدم
+    # Request explicit confirmation from the user
     echo -ne "\n"
     read -p "Do you want to install 'yay' (AUR helper) now? (y/N): " yay_choice
     case "$yay_choice" in
         [yY][eE][sS]|[yY])
             print_info "Proceeding with yay installation..."
             
-            # التأكد التلقائي من توفر وتثبيت أدوات البناء الأساسية لمنع أخطاء makepkg
+            # Automatically ensure essential build tools are installed to prevent makepkg errors
             print_info "Ensuring build essentials (base-devel, git) are installed..."
             if command -v pacman &> /dev/null; then
                 sudo pacman -S --needed --noconfirm base-devel git
@@ -29,7 +29,7 @@ install_yay() {
                 ensure_packages "base-devel" "git"
             fi
 
-            # إنشاء مجلد مؤقت واستنساخ مستودع yay
+            # Create a temporary directory and clone the yay repository
             temp_dir=$(mktemp -d)
             if cd "$temp_dir"; then
                 print_info "Cloning yay from AUR..."
@@ -41,7 +41,7 @@ install_yay() {
                 else
                     print_error "Failed to clone yay repository from AUR."
                 fi
-                # تنظيف المجلد المؤقت والرجوع للخلف بأمان
+                # Clean up the temporary directory and safely return
                 cd ~
                 rm -rf "$temp_dir"
             else
@@ -54,5 +54,5 @@ install_yay() {
     esac
 }
 
-# تشغيل الدالة مباشرة لو تم تشغيل السكربت لوحده
+# Run the function directly if the script is executed standalone
 install_yay

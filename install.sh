@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# تحديد مجلد السكربت بدقة لضمان عمل المسارات المطلقة بشكل صحيح
+# Determine the script directory accurately to ensure absolute paths work correctly
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# تحميل الملفات الفرعية مع التأكد من وجودها أولاً لمنع أخطاء No such file
+# Load submodules while ensuring they exist first to prevent "No such file" errors
 load_module() {
     local module="$1"
     if [ -f "$SCRIPT_DIR/$module" ]; then
@@ -54,7 +54,7 @@ main() {
         fi
     fi
 
-    # 3. Setup Symlinks and Configs
+    # 3. Setup Symlinks and Configurations
     read -p "Do you want to setup config files now? (y/n): " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
@@ -109,7 +109,7 @@ main() {
         fi
     fi
 
-    # 8. Run Final Setup (Wallpaper, Matugen, Cleanup & Reboot prompt)
+    # 8. Run Final Setup (Wallpaper, Matugen, Cleanup & Reboot Prompt)
     read -p "Do you want to run the final setup (Wallpaper, Matugen, Cleanup) now? (y/n): " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
@@ -126,5 +126,5 @@ main() {
     print_success "Installation script finished!"
 }
 
-# Execute main function
+# Execute the main function
 main
