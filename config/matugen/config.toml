@@ -1,9 +1,5 @@
 [config]
 
-[templates.colorsjson]
-input_path = '~/.config/matugen/templates/colors.json'
-output_path = '~/.config/ml4w/colors/colors.json'
-
 [templates.kitty]
 input_path = '~/.config/matugen/templates/kitty-colors.conf'
 output_path = '~/.config/kitty/colors.conf'
@@ -45,14 +41,6 @@ output_path = '~/.cache/wal/colors.json'
 input_path = '~/.config/matugen/templates/swaync-style.css'
 output_path = '~/.config/swaync/style-gen.css'
 
-[templates.walker]
-input_path = '~/.config/matugen/templates/colors.css'
-output_path = '~/.config/walker/colors.css'
-
-[templates.nwgdock]
-input_path = '~/.config/matugen/templates/colors.css'
-output_path = '~/.config/nwg-dock-hyprland/colors.css'
-
 [templates.sequences]
 input_path = '~/.config/matugen/templates/sequences'
 output_path = '~/.cache/wal/sequences'
@@ -69,9 +57,6 @@ output_path = '~/.config/ml4w/colors/onsurface'
 input_path = '~/.config/matugen/templates/onprimary'
 output_path = '~/.config/ml4w/colors/onprimary'
 
-[templates.quickshell_overview]
-input_path  = "./templates/quickshell-overview.qml"
-output_path = "~/.config/quickshell/overview/common/Appearance.colors.qml"
 
 [templates.yazi]
 input_path = '~/.config/matugen/templates/yazi-theme.toml'
