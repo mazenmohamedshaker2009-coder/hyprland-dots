@@ -40,6 +40,8 @@ pipewire
 wireplumber
 pavucontrol
 
+libnotify
+
 polkit-kde-agent
 
 xdg-desktop-portal-hyprland
@@ -60,6 +62,9 @@ swappy
 
 swww
 
+zsh-autosuggestions
+zsh-syntax-highlighting
+
 fastfetch
 btop
 cava
@@ -70,6 +75,13 @@ wget
 jq
 zip
 unzip
+
+
+base-devel
+cmake
+meson
+ninja
+pkgconf
 
 noto-fonts
 noto-fonts-emoji
