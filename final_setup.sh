@@ -10,82 +10,105 @@ source "$SCRIPT_DIR/variables.sh"
 
 print_info "Running final post-installation setup..."
 
-# 1. تشغيل والتحقق من الـ daemon الخاص بـ awww وتمرير الخلفية
+# ==========================================
+# 1. دمج وتعديل سكربت الخلفيات والألوان
+# ==========================================
 storage_dir="$HOME/.config/hypr/wallpapers"
+storagepath="$storage_dir/.current"
 default_wallpaper="$storage_dir/default.png"
 
+# التأكد من وجود مجلد التخزين
+mkdir -p "$storage_dir"
+
 if [ -f "$default_wallpaper" ]; then
-    print_info "Checking and initializing wallpaper daemon (awww)..."
+    print_info "Wallpaper setup (Press Enter to use default or type a new path/folder):"
     
-    if command -v awww &> /dev/null; then
-        if ! pgrep -x "awww" > /dev/null; then
-            print_info "Starting awww daemon in the background..."
-            # تشغيل الـ daemon بالطريقة الصحيحة باستخدام subcommand الـ daemon
-            awww daemon &
-            sleep 1
-        fi
+    # استخدام read مع -e و -i لتمكين التعديل وعرض المسار الافتراضي جاهزاً مع دعم Tab
+    read -e -i "$default_wallpaper" -p "Enter your wallpaper path or folder: " inputpath
+    inputpath="${inputpath:-$default_wallpaper}"
 
-        # آلية تحقق متكررة لضمان جاهزية الـ daemon واستجابته
-        max_attempts=5
-        attempt=1
-        daemon_ready=false
-
-        while [ $attempt -le $max_attempts ]; do
-            if awww query &> /dev/null; then
-                daemon_ready=true
-                break
-            fi
-            print_warning "Waiting for awww daemon to be ready (Attempt $attempt/$max_attempts)..."
-            sleep 1
-            ((attempt++))
-        done
-
-        if [ "$daemon_ready" = true ]; then
-            print_info "Triggering wallpaper and passing the path automatically..."
-            if command -v wallpaper &> /dev/null; then
-                wallpaper <<EOF
-$default_wallpaper
-EOF
-            else
-                awww img "$default_wallpaper"
-            fi
+    # معالجة اختصار الـ tilde (~)
+    if [[ "$inputpath" == ~* ]]; then
+        inputpath="${inputpath/#\~/$HOME}"
+    elif [[ "$inputpath" != /* ]]; then
+        if [ -e "$PWD/$inputpath" ]; then
+            inputpath="$PWD/$inputpath"
+        elif [ -e "$HOME/$inputpath" ]; then
+            inputpath="$HOME/$inputpath"
         else
-            print_error "Failed to connect to awww daemon after multiple attempts."
+            inputpath="$PWD/$inputpath"
         fi
+    fi
+
+    # فحص المدخل: هل هو مجلد أم ملف؟
+    if [ -d "$inputpath" ]; then
+        print_info "Folder detected. Selecting a random wallpaper..."
+        
+        wallpath=$(find -L "$inputpath" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" -o -iname "*.gif" \) | shuf -n 1)
+        
+        if [ -z "$wallpath" ]; then
+            print_error "Error: No images found inside the specified folder!"
+            exit 1
+        fi
+    elif [ -f "$inputpath" ]; then
+        wallpath="$inputpath"
     else
-        print_warning "Command 'awww' not found in PATH."
-    fi
+        print_error "Error: '$inputpath' does not exist!"
+        exit 1
+    }
 
-    if command -v matugen &> /dev/null; then
-        print_info "Generating system colors with matugen..."
-        # تم تصحيح القيمة إلى darkness بناءً على مخرجات الخطأ في الصورة
-        matugen image "$default_wallpaper" --prefer darkness || matugen image "$default_wallpaper" || true
-    fi
+    print_info "Selected wallpaper: $wallpath"
+
+    # دالة حفظ الخلفية
+    save_wall_function() {
+        rm -rf "$storagepath"
+        cp -f "$wallpath" "$storagepath"
+    }
+
+    # دالة تطبيق الخلفية وتوليد الألوان وتحديث الحزم
+    apply_wall_function() {
+        if command -v awww &> /dev/null; then
+            awww img "$storagepath" \
+                --transition-type grow \
+                --transition-pos center \
+                --transition-duration 1
+        fi
+
+        if command -v matugen &> /dev/null; then
+            print_info "Generating system colors with matugen..."
+            matugen image "$storagepath" --prefer darkness || matugen image "$storagepath" || true
+        fi
+
+        # 1. تحديث SwayNC بأمان
+        if [ -s "$HOME/.config/swaync/style-gen.css" ]; then
+            cp "$HOME/.config/swaync/style-gen.css" "$HOME/.config/swaync/style.css"
+            swaync-client -rs || true
+        fi
+
+        # 2. تحديث ألوان Kitty
+        if command -v kitty &> /dev/null; then
+            kitty @ --to unix:@mykitty set-colors --all "$HOME/.config/kitty/colors.conf" 2>/dev/null || true
+        fi
+    }
+
+    save_wall_function
+    apply_wall_function
+    print_success "Wallpaper applied and colors generated successfully!"
 else
-    print_error "Default wallpaper not found at $default_wallpaper!"
+    print_warning "Default wallpaper not found at $default_wallpaper, skipping wallpaper setup."
 fi
 
-# 2. تحديث وتهيئة الإشعارات (SwayNC)
-print_info "Configuring and restarting notifications (SwayNC)..."
-if [ -f "$HOME/.config/swaync/style-gen.css" ] && [ -s "$HOME/.config/swaync/style-gen.css" ]; then
-    cp "$HOME/.config/swaync/style-gen.css" "$HOME/.config/swaync/style.css"
-fi
-if command -v swaync-client &> /dev/null; then
-    swaync-client -rs || true
-fi
-
-# 3. تحديث ألوان Kitty
-if command -v kitty &> /dev/null; then
-    kitty @ --to unix:@mykitty set-colors --all "$HOME/.config/kitty/colors.conf" 2>/dev/null || true
-fi
-
-# 4. إعادة تحميل إضافات Hyprland
+# ==========================================
+# 2. إعادة تحميل إضافات Hyprland
+# ==========================================
 print_info "Reloading Hyprland plugins..."
 if command -v hyprpm &> /dev/null; then
     hyprpm reload || true
 fi
 
-# 5. حذف مجلد المشروع المؤقت
+# ==========================================
+# 3. حذف مجلد المشروع المؤقت
+# ==========================================
 print_info "Cleaning up installation files..."
 project_dir="$(dirname "$(realpath "$0")")"
 if [ -d "$project_dir" ] && [ "$project_dir" != "$HOME" ] && [ "$project_dir" != "/" ]; then
@@ -93,7 +116,9 @@ if [ -d "$project_dir" ] && [ "$project_dir" != "$HOME" ] && [ "$project_dir" !=
     print_success "Project directory cleaned up successfully."
 fi
 
-# 6. سؤال الريبوت النهائي
+# ==========================================
+# 4. سؤال الريبوت النهائي
+# ==========================================
 echo -ne "\n"
 read -t 5 -p "Installation is fully completed! Do you want to reboot now? (y/N) [Auto-abort in 5s]: " reboot_choice || reboot_choice="n"
 case "$reboot_choice" in
