@@ -10,26 +10,48 @@ setup_files() {
     mkdir -p "$HOME/.config"
     mkdir -p "$BACKUP_DIR"
 
-    # Copy all items (files and directories) inside the config folder to ~/.config/
-    for d in "$CONFIG_DIR"/*; do
-        if [ -e "$d" ]; then
-            target_name=$(basename "$d")
-            target_path="$HOME/.config/$target_name"
+    # 1. Copy all items inside the config folder to ~/.config/
+    if [ -d "$CONFIG_DIR" ]; then
+        for d in "$CONFIG_DIR"/*; do
+            if [ -e "$d" ]; then
+                target_name=$(basename "$d")
+                target_path="$HOME/.config/$target_name"
 
-            # Back up existing configurations
-            if [ -e "$target_path" ]; then
-                print_warning "Existing config found for $target_name, backing up..."
-                rm -rf "$BACKUP_DIR/$target_name"
-                mv "$target_path" "$BACKUP_DIR/"
+                # Back up existing configurations
+                if [ -e "$target_path" ]; then
+                    print_warning "Existing config found for $target_name, backing up..."
+                    rm -rf "$BACKUP_DIR/$target_name"
+                    mv "$target_path" "$BACKUP_DIR/"
+                fi
+
+                # Copy files/folders instead of symlinking
+                cp -r "$d" "$target_path"
+                print_success "Copied config: $target_name -> ~/.config/"
             fi
+        done
+    else
+        print_warning "Config directory not found at $CONFIG_DIR"
+    fi
 
-            # Copy files/folders instead of symlinking
-            cp -r "$d" "$target_path"
-            print_success "Copied: $target_name"
+    # 2. Copy .zshrc directly to $HOME ($HOME/.zshrc)
+    ZSH_SRC_DIR="$(dirname "$0")/zsh"
+    if [ -f "$ZSH_SRC_DIR/.zshrc" ]; then
+        target_zsh="$HOME/.zshrc"
+        
+        # Back up existing .zshrc if it exists
+        if [ -f "$target_zsh" ]; then
+            print_warning "Existing .zshrc found in Home, backing up..."
+            mkdir -p "$BACKUP_DIR/zsh"
+            mv "$target_zsh" "$BACKUP_DIR/zsh/.zshrc"
         fi
-    done
 
-    # Automatically link all scripts from ~/.config/hypr/scripts/ to /usr/local/bin (Stripping .sh)
+        cp -f "$ZSH_SRC_DIR/.zshrc" "$target_zsh"
+        print_success "Copied .zshrc -> $HOME/.zshrc"
+    else
+        print_warning ".zshrc not found in $ZSH_SRC_DIR"
+    fi
+
+    # 3. Automatically link all scripts from ~/.config/hypr/scripts/ to /usr/local/bin (Stripping .sh)
     print_info "Setting up and symlinking system scripts..."
     
     SCRIPTS_DIR="$HOME/.config/hypr/scripts"

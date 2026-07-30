@@ -4,29 +4,39 @@ source "$(dirname "$0")/utils.sh"
 source "$(dirname "$0")/variables.sh"
 
 setup_hypr_plugins() {
-    print_info "Configuring Hyprland plugins (hyprexpo)..."
+    print_info "Setting up Hyprland plugins (hyprexpo)..."
+    
+    # التأكد من وجود أدوات البناء اللازمة للكومبايل
+    ensure_packages "base-devel" "git" "cmake" "meson" "ninja" "pkgconf"
 
-    # 1. Check if hyprpm is available
-    if ! command -v hyprpm &> /dev/null; then
-        print_error "hyprpm is not found! Make sure Hyprland is installed correctly."
-        return 1
-    }
-
-    # 2. Add the hyprexpo repository if not already added
-    print_info "Adding hyprexpo repository via hyprpm..."
-    if hyprpm list | grep -q "sandwichfarm/hyprexpo"; then
+    # التحقق مما إذا كان الريبو مضافاً مسبقاً
+    print_info "Checking hyprexpo repository..."
+    if hyprpm list 2>/dev/null | grep -q "hyprexpo"; then
         print_info "hyprexpo repository is already added."
     else
-        hyprpm add https://github.com/sandwichfarm/hyprexpo
+        print_info "Adding hyprexpo repository via hyprpm..."
+        if hyprpm add https://github.com/sandwichfarm/hyprexpo; then
+            print_success "hyprexpo repository added successfully."
+        else
+            print_error "Failed to add hyprexpo automatically via hyprpm."
+            print_info "You can add it manually later using: hyprpm add https://github.com/sandwichfarm/hyprexpo"
+        fi
     fi
 
-    # 3. Update plugins tree
+    # تحديث شجرة الـ plugins
     print_info "Updating hyprpm plugins..."
-    hyprpm update
+    hyprpm update || print_error "hyprpm update had some issues, continuing..."
 
-    # 4. Enable hyprexpo plugin
+    # تمكين الـ Plugin
     print_info "Enabling hyprexpo plugin..."
-    hyprpm enable hyprexpo
+    if hyprpm enable hyprexpo; then
+        print_success "Hyprland hyprexpo plugin set up and enabled successfully!"
+    else
+        print_error "Could not enable hyprexpo automatically. You might need to run: hyprpm enable hyprexpo"
+    fi
 
-    print_success "Hyprland hyprexpo plugin set up and enabled successfully!"
+    # إعادة تحميل الـ plugins للتأكد من تفعيلها
+    hyprpm reload || true
+    
+    print_success "Hyprland plugins setup completed."
 }
