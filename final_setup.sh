@@ -23,7 +23,6 @@ mkdir -p "$storage_dir"
 if [ -f "$default_wallpaper" ]; then
     print_info "Wallpaper setup (Press Enter to use default or type a new path/folder):"
     
-    # استخدام read مع -e و -i لتمكين التعديل وعرض المسار الافتراضي جاهزاً مع دعم Tab
     read -e -i "$default_wallpaper" -p "Enter your wallpaper path or folder: " inputpath
     inputpath="${inputpath:-$default_wallpaper}"
 
@@ -68,7 +67,6 @@ if [ -f "$default_wallpaper" ]; then
     # دالة تطبيق الخلفية وتوليد الألوان وتحديث الحزم
     apply_wall_function() {
         if command -v awww &> /dev/null; then
-            # التأكد من تشغيل awww-daemon في الخلفية لتجنب مشكلة الـ Socket
             if ! pgrep -x "awww-daemon" > /dev/null; then
                 awww-daemon &
                 sleep 0.5
@@ -85,13 +83,11 @@ if [ -f "$default_wallpaper" ]; then
             matugen image "$storagepath" --prefer darkness || matugen image "$storagepath" || true
         fi
 
-        # 1. تحديث SwayNC بأمان
         if [ -s "$HOME/.config/swaync/style-gen.css" ]; then
             cp "$HOME/.config/swaync/style-gen.css" "$HOME/.config/swaync/style.css"
             swaync-client -rs || true
         fi
 
-        # 2. تحديث ألوان Kitty
         if command -v kitty &> /dev/null; then
             kitty @ --to unix:@mykitty set-colors --all "$HOME/.config/kitty/colors.conf" 2>/dev/null || true
         fi
@@ -105,7 +101,60 @@ else
 fi
 
 # ==========================================
-# 2. إعادة تحميل إضافات Hyprland
+# 2. نقل وتنظيف إعدادات Zsh و Oh-My-Zsh بأمان
+# ==========================================
+print_info "Configuring Zsh and Oh-My-Zsh environment..."
+
+dotfiles_source_dir="$SCRIPT_DIR/zsh" 
+backup_dir="$HOME/.zsh_backup_$(date +%s)"
+zsh_items=(".zsh_history" ".zshrc" ".zshrc.pre-oh-my-zsh" ".oh-my-zsh")
+
+if [ -d "$dotfiles_source_dir" ]; then
+    mkdir -p "$backup_dir"
+    print_info "Creating a safety backup of existing Zsh configs..."
+    
+    for item in "${zsh_items[@]}"; do
+        if [ -e "$HOME/$item" ]; then
+            cp -rf "$HOME/$item" "$backup_dir/"
+        fi
+    done
+
+    {
+        print_info "Cleaning old Zsh traces from \$HOME..."
+        for item in "${zsh_items[@]}"; do
+            rm -rf "$HOME/$item"
+        done
+
+        print_info "Copying fresh Zsh files from project..."
+        shopt -s dotglob
+        cp -rf "$dotfiles_source_dir"/. "$HOME/"
+        shopt -u dotglob
+        
+        print_success "Zsh configurations applied successfully!"
+        
+        rm -rf "$backup_dir"
+
+    } || {
+        print_error "Error occurred while setting up Zsh files! Restoring backup..."
+        
+        for item in "${zsh_items[@]}"; do
+            rm -rf "$HOME/$item"
+        done
+        
+        if [ -d "$backup_dir" ] && [ "$(ls -A "$backup_dir")" ]; then
+            cp -rf "$backup_dir"/. "$HOME/"
+            print_success "Rollback completed safely. Original files restored."
+        fi
+        
+        rm -rf "$backup_dir"
+        exit 1
+    }
+else
+    print_warning "Directory 'zsh' not found in project, skipping Zsh custom files copy."
+fi
+
+# ==========================================
+# 3. إعادة تحميل إضافات Hyprland
 # ==========================================
 print_info "Reloading Hyprland plugins..."
 if command -v hyprpm &> /dev/null; then
@@ -113,7 +162,7 @@ if command -v hyprpm &> /dev/null; then
 fi
 
 # ==========================================
-# 3. حذف مجلد المشروع المؤقت
+# 4. حذف مجلد المشروع المؤقت
 # ==========================================
 print_info "Cleaning up installation files..."
 project_dir="$(dirname "$(realpath "$0")")"
@@ -123,7 +172,7 @@ if [ -d "$project_dir" ] && [ "$project_dir" != "$HOME" ] && [ "$project_dir" !=
 fi
 
 # ==========================================
-# 4. سؤال الريبوت النهائي
+# 5. سؤال الريبوت النهائي
 # ==========================================
 echo -ne "\n"
 read -t 5 -p "Installation is fully completed! Do you want to reboot now? (y/N) [Auto-abort in 5s]: " reboot_choice || reboot_choice="n"
