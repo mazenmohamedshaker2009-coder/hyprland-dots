@@ -68,6 +68,12 @@ if [ -f "$default_wallpaper" ]; then
     # دالة تطبيق الخلفية وتوليد الألوان وتحديث الحزم
     apply_wall_function() {
         if command -v awww &> /dev/null; then
+            # التأكد من تشغيل awww-daemon في الخلفية لتجنب مشكلة الـ Socket
+            if ! pgrep -x "awww-daemon" > /dev/null; then
+                awww-daemon &
+                sleep 0.5
+            fi
+
             awww img "$storagepath" \
                 --transition-type grow \
                 --transition-pos center \
