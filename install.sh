@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Source required modules
+# Source required modules (وظيفتها هنا تحميل الدوال والمتغيرات فقط دون تنفيذها بشكل عشوائي)
 source "$(dirname "$0")/utils.sh"
 source "$(dirname "$0")/variables.sh"
 source "$(dirname "$0")/yay.sh"
@@ -67,12 +67,20 @@ main() {
     fi
 
     # 8. Run Final Setup (Wallpaper, Matugen, Cleanup & Reboot prompt)
-    print_info "Starting final setup phase..."
-    if [ -f "$(dirname "$0")/final_setup.sh" ]; then
-        bash "$(dirname "$0")/final_setup.sh"
+    read -p "Do you want to run the final setup (Wallpaper, Matugen, Cleanup) now? (y/n): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        print_info "Starting final setup phase..."
+        if [ -f "$(dirname "$0")/final_setup.sh" ]; then
+            bash "$(dirname "$0")/final_setup.sh"
+        else
+            print_error "final_setup.sh not found!"
+        fi
     else
-        print_error "final_setup.sh not found!"
+        print_info "Final setup skipped by user."
     fi
+
+    print_success "Installation script finished!"
 }
 
 # Execute main function
