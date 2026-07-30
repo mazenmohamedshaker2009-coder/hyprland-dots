@@ -1,7 +1,12 @@
 #!/bin/bash
 
-source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
-source "$(dirname "${BASH_SOURCE[0]}")/variables.sh"
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+source "$SCRIPT_DIR/utils.sh"
+source "$SCRIPT_DIR/variables.sh"
 
 setup_files() {
     print_info "Setting up configurations and copying files..."
@@ -33,8 +38,8 @@ setup_files() {
         print_warning "Config directory not found at $CONFIG_DIR"
     fi
 
-    # 2. Copy .zshrc directly to $HOME ($HOME/.zshrc)
-    ZSH_SRC_DIR="$(dirname "$0")/zsh"
+    # 2. Copy .zshrc directly to $HOME ($HOME/.zshrc) using absolute path resolution
+    ZSH_SRC_DIR="$SCRIPT_DIR/zsh"
     if [ -f "$ZSH_SRC_DIR/.zshrc" ]; then
         target_zsh="$HOME/.zshrc"
         
