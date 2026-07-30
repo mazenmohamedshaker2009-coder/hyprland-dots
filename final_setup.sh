@@ -5,39 +5,27 @@ source "$(dirname "${BASH_SOURCE[0]}")/variables.sh"
 
 print_info "Running final post-installation setup..."
 
-# 1. تحديد مسار الخلفية الثابت في الـ HOME حصراً (وليس مجلد المشروع المؤقت)
+# 1. تشغيل أمر الـ wallpaper وإرسال المسار أوتوماتيكياً للـ read عبر Here-String
 storage_dir="$HOME/.config/hypr/wallpapers"
-storagepath="$storage_dir/.current"
 default_wallpaper="$storage_dir/default.png"
 
-mkdir -p "$storage_dir"
-
-# التحقق من وجود الصورة الافتراضية في مكانها النهائي بعد نسخ الـ Configs
 if [ -f "$default_wallpaper" ]; then
-    print_info "Applying default wallpaper from: $default_wallpaper"
+    print_info "Triggering wallpaper and passing the path automatically..."
     
-    # حفظ الخلفية في ملف التشغيل الحالي
-    rm -rf "$storagepath"
-    cp -f "$default_wallpaper" "$storagepath"
-
-    # تطبيق الخلفية بـ awww (أو استخدام السكربت العام لو مدعم في /usr/local/bin)
-    if command -v awww &> /dev/null; then
-        awww img "$storagepath" \
-            --transition-type grow \
-            --transition-pos center \
-            --transition-duration 1
-    elif command -v wallpaper &> /dev/null; then
-        # لو عندك سكربت wallpaper تم ربطه مسبقاً في usr/local/bin
-        wallpaper "$default_wallpaper" || true
+    if command -v wallpaper &> /dev/null; then
+        wallpaper <<EOF
+$HOME/.config/hypr/wallpapers/default.png
+EOF
+    else
+        print_warning "Custom 'wallpaper' command not found in PATH yet."
     fi
 
-    # توليد الألوان وتحديث النظام بـ matugen
     if command -v matugen &> /dev/null; then
         print_info "Generating system colors with matugen..."
-        matugen image "$storagepath"
+        matugen image "$default_wallpaper" || true
     fi
 else
-    print_error "Default wallpaper not found at $default_wallpaper! Make sure files.sh copied config correctly."
+    print_error "Default wallpaper not found at $default_wallpaper!"
 fi
 
 # 2. تحديث وتهيئة الإشعارات (SwayNC)
@@ -54,21 +42,21 @@ if command -v kitty &> /dev/null; then
     kitty @ --to unix:@mykitty set-colors --all "$HOME/.config/kitty/colors.conf" 2>/dev/null || true
 fi
 
-# 4. إعادة تحميل وتفعيل إضافات Hyprland (Plugins)
+# 4. إعادة تحميل إضافات Hyprland
 print_info "Reloading Hyprland plugins..."
 if command -v hyprpm &> /dev/null; then
-    hyprpm reload
+    hyprpm reload || true
 fi
 
-# 5. حذف مجلد المشروع بالكامل قبل سؤال المستخدم عن الريبوت
+# 5. حذف مجلد المشروع المؤقت
 print_info "Cleaning up installation files..."
 project_dir="$(dirname "$(realpath "$0")")"
-if [ -d "$project_dir" ]; then
+if [ -d "$project_dir" ] && [ "$project_dir" != "$HOME" ]; then
     rm -rf "$project_dir"
     print_success "Project directory cleaned up successfully."
 fi
 
-# 6. سؤال المستخدم الأخير عن إعادة التشغيل (Reboot)
+# 6. سؤال الريبوت النهائي
 echo -ne "\n"
 read -p "Installation is fully completed! Do you want to reboot now? (y/N): " reboot_choice
 case "$reboot_choice" in
