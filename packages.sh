@@ -1,9 +1,10 @@
 #!/bin/bash
 
 source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
-source "$(dirname "${BASH_SOURCE[0]}")/variables.sh"install_packages() {
+source "$(dirname "${BASH_SOURCE[0]}")/variables.sh"
 
 
+install_packages() {
 print_info "Updating system and installing packages..."
 
     if [ ! -f "$PACKAGES_FILE" ]; then
