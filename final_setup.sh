@@ -107,7 +107,7 @@ print_info "Configuring Zsh and Oh-My-Zsh environment..."
 
 dotfiles_source_dir="$SCRIPT_DIR/zsh" 
 backup_dir="$HOME/.zsh_backup_$(date +%s)"
-zsh_items=(".zsh_history" ".zshrc" ".zshrc.pre-oh-my-zsh" ".oh-my-zsh")
+zsh_items=( ".zshrc" ".zshrc.pre-oh-my-zsh" ".oh-my-zsh")
 
 if [ -d "$dotfiles_source_dir" ]; then
     mkdir -p "$backup_dir"
