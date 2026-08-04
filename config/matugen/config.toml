@@ -45,19 +45,6 @@ output_path = '~/.config/swaync/style-gen.css'
 input_path = '~/.config/matugen/templates/sequences'
 output_path = '~/.cache/wal/sequences'
 
-[templates.secondary]
-input_path = '~/.config/matugen/templates/secondary'
-output_path = '~/.config/ml4w/colors/secondary'
-
-[templates.on_surface]
-input_path = '~/.config/matugen/templates/onsurface'
-output_path = '~/.config/ml4w/colors/onsurface'
-
-[templates.on_primary]
-input_path = '~/.config/matugen/templates/onprimary'
-output_path = '~/.config/ml4w/colors/onprimary'
-
-
 [templates.yazi]
 input_path = '~/.config/matugen/templates/yazi-theme.toml'
 output_path = '~/.config/yazi/theme.toml'
