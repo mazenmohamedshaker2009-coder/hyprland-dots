@@ -7,6 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 load_module() {
     local module="$1"
     if [ -f "$SCRIPT_DIR/$module" ]; then
+        # shellcheck source=/dev/null
         source "$SCRIPT_DIR/$module"
     else
         echo "[ERROR] Required module not found: $module"
@@ -22,7 +23,7 @@ load_module "files.sh"
 load_module "setup_cursors.sh"
 load_module "setup_dark_mode.sh"
 load_module "setup_zsh.sh"
-load_module "hyprexpo.sh"
+load_module "setup_sddm.sh"
 
 main() {
     # Check if the user is running as root
@@ -98,14 +99,14 @@ main() {
         fi
     fi
 
-    # 7. Setup Hyprland Plugins (hyprexpo)
-    read -p "Do you want to setup Hyprland plugins (hyprexpo) now? (y/n): " -n 1 -r
+    # 7. Setup SDDM Theme (sddm-astronaut-theme)
+    read -p "Do you want to install and configure the SDDM login theme now? (y/n): " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        if declare -f setup_hypr_plugins > /dev/null; then
-            setup_hypr_plugins
+        if declare -f setup_sddm > /dev/null; then
+            setup_sddm
         else
-            print_error "setup_hypr_plugins function not found!"
+            print_error "setup_sddm function not found!"
         fi
     fi
 

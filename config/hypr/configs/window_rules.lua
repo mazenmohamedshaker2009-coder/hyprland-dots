@@ -24,15 +24,6 @@ hl.window_rule({
     no_focus = true,
 })
 
-local wlogoutRule = hl.layer_rule({
-    name = "wlogout",
-    match = {
-        namespace = "^wlogout$",
-    },
-    blur = true,
-    ignore_alpha = 0.5,
-})
-
 hl.window_rule({
     name  = "move-hyprland-run",
     match = { class = "hyprland-run" },

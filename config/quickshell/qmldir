@@ -1,0 +1,14 @@
+singleton Theme 1.0 Theme.qml
+
+singleton Main 1.0 data/Main.qml
+
+singleton Notification 1.0 services/notification/Notification.qml
+
+singleton AudioService 1.0 services/AudioService.qml
+
+singleton BrightnessService 1.0 services/Brightness.qml
+
+singleton HyprData 1.0 modules/workSpaces/HyprData.qml
+
+
+singleton PowerService 1.0 services/PowerService.qml

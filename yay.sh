@@ -16,7 +16,7 @@ install_yay() {
     
     # Request explicit confirmation from the user
     echo -ne "\n"
-    read -p "Do you want to install 'yay' (AUR helper) now? (y/N): " yay_choice
+    read -r -p "Do you want to install 'yay' (AUR helper) now? (y/N): " yay_choice
     case "$yay_choice" in
         [yY][eE][sS]|[yY])
             print_info "Proceeding with yay installation..."
@@ -34,15 +34,21 @@ install_yay() {
             if cd "$temp_dir"; then
                 print_info "Cloning yay from AUR..."
                 if git clone https://aur.archlinux.org/yay-bin.git; then
-                    cd yay-bin
-                    print_info "Building and installing yay..."
-                    makepkg -si --noconfirm
-                    print_success "yay installed successfully!"
+                    if cd yay-bin; then
+                        print_info "Building and installing yay..."
+                        if makepkg -si --noconfirm; then
+                            print_success "yay installed successfully!"
+                        else
+                            print_error "Failed to build/install yay via makepkg."
+                        fi
+                    else
+                        print_error "Failed to enter cloned yay-bin directory."
+                    fi
                 else
                     print_error "Failed to clone yay repository from AUR."
                 fi
                 # Clean up the temporary directory and safely return
-                cd ~
+                cd "$HOME" || true
                 rm -rf "$temp_dir"
             else
                 print_error "Failed to create temporary directory for yay installation."
@@ -54,5 +60,8 @@ install_yay() {
     esac
 }
 
-# Run the function directly if the script is executed standalone
-install_yay
+# Run the function directly only if this script is executed standalone
+# (not when sourced by install.sh, which prompts and calls install_yay itself).
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    install_yay
+fi

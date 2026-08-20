@@ -12,7 +12,7 @@ setup_dark_mode() {
     if command -v gsettings &> /dev/null; then
         print_info "Setting GNOME/GTK dark preference..."
         gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
-        gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark' # أو الثيم المفضل لديك
+        gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark' # or your preferred GTK theme
     fi
 
     # 2. Configure GTK 3.0 settings file directly
@@ -41,9 +41,12 @@ EOF
     if [ -f "$profile_file" ]; then
         if ! grep -q "QT_QPA_PLATFORMTHEME" "$profile_file"; then
             print_info "Adding Qt dark theme environment variables to .zshrc..."
-            echo -e "\n# Force Dark Mode / Theming" >> "$profile_file"
-            echo "export GTK_THEME=Adwaita-dark" >> "$profile_file"
-            echo "export QT_QPA_PLATFORMTHEME=qt5ct" >> "$profile_file"
+            {
+                echo ""
+                echo "# Force Dark Mode / Theming"
+                echo "export GTK_THEME=Adwaita-dark"
+                echo "export QT_QPA_PLATFORMTHEME=qt5ct"
+            } >> "$profile_file"
         fi
     fi
 

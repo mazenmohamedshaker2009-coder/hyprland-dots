@@ -37,10 +37,6 @@ A minimal, keyboard-driven Hyprland setup built for speed, simplicity, and every
 
 ![Workspace](screenshots/workspace.png)
 
-## Wlogout
-
-![Wlogout](screenshots/wlogout.png)
-
 ---
 
 # Features
@@ -48,10 +44,9 @@ A minimal, keyboard-driven Hyprland setup built for speed, simplicity, and every
 - Minimal keyboard-driven workflow
 - Dynamic colors powered by Matugen
 - Automatic wallpaper color generation
-- Minimal Waybar
+- **Bary** — a custom QuickShell-based UI (bar, notifications, wallpaper picker, power menu, and workspace overview) that replaces Waybar, SwayNC, Wlogout, and Hyprexpo
 - Blur everywhere
 - Custom Bash scripts
-- Custom Wlogout
 - Hyprlock
 - Hypridle
 - Built-in wallpaper manager
@@ -62,27 +57,28 @@ A minimal, keyboard-driven Hyprland setup built for speed, simplicity, and every
 
 # Included Components
 
+## Bary
+
+Bary is this rice's custom QuickShell-based shell. It provides the bar, notifications,
+wallpaper picker, power menu, and workspace overview, and is the sole UI layer —
+no Waybar, SwayNC, Wlogout, or Hyprexpo are installed or required.
+
+Bary depends on `quickshell`, `awww` (wallpaper daemon), and `matugen` (theming).
+
 ## SDDM Theme
 
 This setup uses the excellent **Astronaut SDDM Theme**.
 
 https://github.com/Keyitdev/sddm-astronaut-theme
 
+The installer (`setup_sddm.sh`) clones and installs it automatically.
+
 ---
 
 ## Workspace Preview
 
-Workspace preview is powered by **Hyprexpo**.
-
-https://github.com/sandwichfarm/hyprexpo
-
-The installation script automatically:
-
-- Adds the plugin repository.
-- Installs the plugin.
-- Enables it.
-
-No manual configuration is required.
+Workspace preview is provided by Bary's built-in workspace overview module
+(`bary-workspaces`), bound to **Super + Tab**. No external plugin is required.
 
 ---
 
@@ -102,20 +98,18 @@ Feel free to add your own wallpapers.
 
 # Wallpaper Script
 
-The recommended way to change the wallpaper is by using the built-in command.
+The recommended way to change the wallpaper is via Bary's wallpaper picker:
 
 ```bash
-wallpaper
+bary-wallpapers
 ```
 
-After running the command, you'll be asked for the path to your wallpaper.
+Under the hood this uses `~/.config/quickshell/scripts/set_wallpaper.sh`, which:
 
-The script automatically:
-
-- Applies the wallpaper.
+- Applies the wallpaper via `awww`.
 - Regenerates Matugen colors.
 - Updates the entire desktop theme.
-- Reloads the required components.
+- Saves a backup copy to `~/.config/quickshell/data/.wallpaper`.
 
 There is no need to edit any configuration files manually.
 
@@ -128,8 +122,9 @@ There is no need to edit any configuration files manually.
 | **Super + Return** | Open Kitty |
 | **Super + E** | Open Yazi |
 | **Super + N** | Open Nautilus |
-| **Super + X** | Open Wlogout |
-| **Super + Tab** | Workspace Preview |
+| **Super + K** | Open Bary Wallpaper Picker |
+| **Super + X** | Open Bary Power Menu |
+| **Super + Tab** | Bary Workspace Overview |
 | **Super + Q** | Close Active Window |
 
 ---
@@ -150,11 +145,10 @@ hyprlock
 hypridle
 
 # ==========================================
-# UI
+# Bary / Quickshell
 # ==========================================
-waybar
-wlogout
-swaync
+quickshell
+awww
 
 # ==========================================
 # Terminal
@@ -204,8 +198,6 @@ grim
 slurp
 swappy
 
-swww
-
 zsh-autosuggestions
 zsh-syntax-highlighting
 
@@ -220,14 +212,22 @@ jq
 zip
 unzip
 
+# ==========================================
+# Build Tools
+# ==========================================
 base-devel
 cmake
 meson
 ninja
 pkgconf
 
+# ==========================================
+# Fonts
+# ==========================================
 noto-fonts
 noto-fonts-emoji
+
+ttf-victor-mono
 
 ttf-iosevka-nerd
 
@@ -236,10 +236,15 @@ ttf-nerd-fonts-symbols-mono
 
 otf-font-awesome
 
+# ==========================================
+# SDDM / Qt
+# ==========================================
 sddm
 
 qt6-svg
 qt6-declarative
+qt6-multimedia
+qt6-virtualkeyboard
 qt5-quickcontrols2
 ```
 
@@ -271,11 +276,9 @@ It will automatically:
 - Detect whether `yay` is installed.
 - Install `yay` if it is missing.
 - Ask for confirmation whenever necessary.
-- Clone all required repositories.
-- Install and enable Hyprexpo.
 - Copy all configuration files.
-- Create symbolic links.
-- Enable required system services.
+- Create symbolic links (including Bary's `bary-power`, `bary-wallpapers`, `bary-workspaces` commands).
+- Install and configure the SDDM login theme.
 - Apply all required configuration.
 
 When the installation finishes, the desktop is ready to use.
@@ -294,19 +297,19 @@ If you prefer another browser, simply edit the configuration after installation.
 
 These dotfiles intentionally **do not** include:
 
-- Notification Control Center
-- Waybar themes
+- Waybar, SwayNC, Wlogout, or Hyprexpo (all replaced by Bary)
 - White theme
-- System Tray
 - Rofi
 - Wofi
-- Any application launcher
+- Any application launcher other than Bary's own modules
 
-The Waybar intentionally contains only:
+Bary intentionally contains only:
 
 - Workspaces
-- Date
-- Clock
+- Date / Clock
+- Notifications
+- Power menu
+- Wallpaper picker
 
 Nothing more.
 
@@ -320,7 +323,7 @@ These dotfiles are intentionally minimal.
 
 They are built around my own workflow rather than trying to become a universal Hyprland configuration.
 
-If you're looking for launchers, widgets, multiple Waybar themes, system trays, notification centers, and endless customization, these dots probably aren't for you.
+If you're looking for launchers, widgets, multiple bar themes, system trays, notification centers, and endless customization, these dots probably aren't for you.
 
 If you're looking for a fast, clean, distraction-free and keyboard-driven Hyprland setup, you might enjoy them.
 

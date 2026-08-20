@@ -16,45 +16,37 @@ setup_zsh() {
     fi
 
     # 2. Change default shell to zsh if it isn't already
-    if [ "$SHELL" != "$(which zsh)" ]; then
+    ZSH_BIN="$(command -v zsh)"
+    if [ -n "$ZSH_BIN" ] && [ "$SHELL" != "$ZSH_BIN" ]; then
         print_info "Changing default shell to zsh..."
-        chsh -s "$(which zsh)"
+        chsh -s "$ZSH_BIN"
     else
         print_info "Default shell is already zsh."
     fi
 
-    # 3. Install Oh My Zsh (if not already installed)
+    # 3. Install Oh My Zsh (if not already installed).
+    # Prefer the vendored copy shipped in this repo (zsh/.oh-my-zsh) so the
+    # install is reproducible and doesn't depend on network access; fall
+    # back to the official installer if the vendored copy isn't present.
     if [ ! -d "$HOME/.oh-my-zsh" ]; then
-        print_info "Installing Oh My Zsh..."
-        # Using RUNZSH=no and CHSH=no to prevent the installer from interrupting the script
-        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-        print_success "Oh My Zsh installed successfully."
+        VENDORED_OMZ="$DOTFILES_DIR/zsh/.oh-my-zsh"
+        if [ -d "$VENDORED_OMZ" ]; then
+            print_info "Installing Oh My Zsh from the bundled copy in this repo..."
+            cp -r "$VENDORED_OMZ" "$HOME/.oh-my-zsh"
+            print_success "Oh My Zsh installed successfully (from bundled copy)."
+        else
+            print_info "Installing Oh My Zsh (downloading official installer)..."
+            # Using RUNZSH=no and CHSH=no to prevent the installer from interrupting the script
+            sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+            print_success "Oh My Zsh installed successfully."
+        fi
     else
         print_info "Oh My Zsh is already installed."
     fi
 
-    # 4. Copy custom .zshrc from a separate folder in your project
-    # Assuming you have a variable or path like PROJECT_ROOT/zsh/zshrc or similar
-    CUSTOM_ZSHRC="$PROJECT_DIR/zsh/zshrc" # يمكنك تعديل المسار حسب مجلدك المنفصل
-
-    if [ -f "$CUSTOM_ZSHRC" ]; then
-        print_info "Applying custom .zshrc configuration..."
-        
-        # Backup existing .zshrc if it exists and is not a symlink
-        if [ -f "$HOME/.zshrc" ] && [ ! -L "$HOME/.zshrc" ]; then
-            mkdir -p "$BACKUP_DIR"
-            mv "$HOME/.zshrc" "$BACKUP_DIR/.zshrc.bak"
-            print_warning "Backed up existing .zshrc to backup folder."
-        elif [ -L "$HOME/.zshrc" ]; then
-            rm "$HOME/.zshrc"
-        fi
-
-        # Copy the custom .zshrc to home directory
-        cp "$CUSTOM_ZSHRC" "$HOME/.zshrc"
-        print_success "Custom .zshrc applied successfully."
-    else
-        print_warning "Custom zshrc file not found at $CUSTOM_ZSHRC"
-    fi
+    # 4. .zshrc is installed (with backup of any existing file) by files.sh,
+    # which copies zsh/.zshrc from this repo to $HOME/.zshrc. Not duplicated
+    # here to avoid two competing backup/copy paths for the same file.
 
     print_success "Zsh setup completed!"
 }

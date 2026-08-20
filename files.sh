@@ -25,7 +25,7 @@ setup_files() {
                 # Back up existing configurations
                 if [ -e "$target_path" ]; then
                     print_warning "Existing config found for $target_name, backing up..."
-                    rm -rf "$BACKUP_DIR/$target_name"
+                    rm -rf "${BACKUP_DIR:?}/$target_name"
                     mv "$target_path" "$BACKUP_DIR/"
                 fi
 
@@ -38,11 +38,12 @@ setup_files() {
         print_warning "Config directory not found at $CONFIG_DIR"
     fi
 
-    # 2. Copy .zshrc directly to $HOME ($HOME/.zshrc) using absolute path resolution
+    # 2. Copy .zshrc directly to $HOME
     ZSH_SRC_DIR="$SCRIPT_DIR/zsh"
+
     if [ -f "$ZSH_SRC_DIR/.zshrc" ]; then
         target_zsh="$HOME/.zshrc"
-        
+
         # Back up existing .zshrc if it exists
         if [ -f "$target_zsh" ]; then
             print_warning "Existing .zshrc found in Home, backing up..."
@@ -56,24 +57,57 @@ setup_files() {
         print_warning ".zshrc not found in $ZSH_SRC_DIR"
     fi
 
-    # 3. Automatically link all scripts from ~/.config/hypr/scripts/ to /usr/local/bin (Stripping .sh)
+    # 3. Link all Hyprland scripts to /usr/local/bin
     print_info "Setting up and symlinking system scripts..."
-    
+
     SCRIPTS_DIR="$HOME/.config/hypr/scripts"
-    
+
     if [ -d "$SCRIPTS_DIR" ]; then
         for script in "$SCRIPTS_DIR"/*.sh; do
             if [ -f "$script" ]; then
-                # Get script name without extension (e.g., wallpaper.sh -> wallpaper)
+                # Get script name without extension
                 script_name=$(basename "$script" .sh)
-                
+
+                # Ensure the script is executable before linking it into PATH
+                chmod +x "$script"
+
                 # Create symlink in /usr/local/bin
                 sudo ln -sf "$script" "/usr/local/bin/$script_name"
+
                 print_success "Linked script: $script_name -> /usr/local/bin/$script_name"
             fi
         done
     else
         print_warning "Scripts directory not found at $SCRIPTS_DIR"
+    fi
+
+    # 4. Link Bary module scripts to /usr/local/bin
+    print_info "Setting up Bary module commands..."
+
+    BARY_MODULES_DIR="$HOME/.config/quickshell/modules"
+
+    declare -A BARY_MODULE_LINKS=(
+        ["power"]="bary-power"
+        ["wallpaperSelector"]="bary-wallpapers"
+        ["workSpaces"]="bary-workspaces"
+    )
+
+    if [ -d "$BARY_MODULES_DIR" ]; then
+        for module in "${!BARY_MODULE_LINKS[@]}"; do
+            script="$BARY_MODULES_DIR/$module/link.sh"
+            link_name="${BARY_MODULE_LINKS[$module]}"
+
+            if [ -f "$script" ]; then
+                chmod +x "$script"
+                sudo ln -sf "$script" "/usr/local/bin/$link_name"
+
+                print_success "Linked Bary module: $link_name -> $script"
+            else
+                print_warning "Bary module script not found: $script"
+            fi
+        done
+    else
+        print_warning "Bary modules directory not found at $BARY_MODULES_DIR"
     fi
 
     print_success "Files setup and scripts linking completed successfully."

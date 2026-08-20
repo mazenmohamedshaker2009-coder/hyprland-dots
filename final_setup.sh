@@ -11,10 +11,9 @@ source "$SCRIPT_DIR/variables.sh"
 print_info "Running final post-installation setup..."
 
 # ==========================================
-# 1. Merge and modify wallpaper and color script
+# 1. Setup wallpaper using Bary wallpaper script
 # ==========================================
 storage_dir="$HOME/.config/hypr/wallpapers"
-storagepath="$storage_dir/.current"
 default_wallpaper="$storage_dir/default.png"
 
 # Ensure the storage directory exists
@@ -22,8 +21,8 @@ mkdir -p "$storage_dir"
 
 if [ -f "$default_wallpaper" ]; then
     print_info "Wallpaper setup (Press Enter to use default or type a new path/folder):"
-    
-    read -e -i "$default_wallpaper" -p "Enter your wallpaper path or folder: " inputpath
+
+    read -r -e -i "$default_wallpaper" -p "Enter your wallpaper path or folder: " inputpath
     inputpath="${inputpath:-$default_wallpaper}"
 
     # Handle tilde (~) expansion
@@ -39,18 +38,26 @@ if [ -f "$default_wallpaper" ]; then
         fi
     fi
 
-    # Check the input: is it a folder or a file?
+    # Check the input: folder or file
     if [ -d "$inputpath" ]; then
         print_info "Folder detected. Selecting a random wallpaper..."
-        
-        wallpath=$(find -L "$inputpath" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" -o -iname "*.gif" \) | shuf -n 1)
-        
+
+        wallpath=$(find -L "$inputpath" -type f \
+            \( -iname "*.jpg" \
+            -o -iname "*.jpeg" \
+            -o -iname "*.png" \
+            -o -iname "*.webp" \
+            -o -iname "*.gif" \) |
+            shuf -n 1)
+
         if [ -z "$wallpath" ]; then
             print_error "Error: No images found inside the specified folder!"
             exit 1
         fi
+
     elif [ -f "$inputpath" ]; then
         wallpath="$inputpath"
+
     else
         print_error "Error: '$inputpath' does not exist!"
         exit 1
@@ -58,129 +65,83 @@ if [ -f "$default_wallpaper" ]; then
 
     print_info "Selected wallpaper: $wallpath"
 
-    # Wallpaper save function
-    save_wall_function() {
-        rm -rf "$storagepath"
-        cp -f "$wallpath" "$storagepath"
-    }
+    # Bary wallpaper script: applies the wallpaper via awww, generates the
+    # matugen color theme, and stores a backup copy for QuickShell/Bary.
+    # NOTE: this is intentionally the script under config/quickshell/scripts,
+    # not modules/wallpaperSelector/link.sh (which only triggers the Bary
+    # wallpaper-picker IPC dispatch and does not accept a path argument).
+    BARY_WALLPAPER_SCRIPT="$HOME/.config/quickshell/scripts/set_wallpaper.sh"
 
-    # Wallpaper apply function, generate colors, and update packages
-    apply_wall_function() {
-        if command -v awww &> /dev/null; then
-            if ! pgrep -x "awww-daemon" > /dev/null; then
-                awww-daemon &
-                sleep 0.5
-            fi
+    if [ -f "$BARY_WALLPAPER_SCRIPT" ]; then
+        print_info "Applying wallpaper through Bary..."
 
-            awww img "$storagepath" \
-                --transition-type grow \
-                --transition-pos center \
-                --transition-duration 1
+        if bash "$BARY_WALLPAPER_SCRIPT" "$wallpath"; then
+            print_success "Wallpaper applied and theme generated successfully!"
+        else
+            print_error "Bary wallpaper script failed!"
+            exit 1
         fi
+    else
+        print_error "Bary wallpaper script not found:"
+        print_error "$BARY_WALLPAPER_SCRIPT"
+        exit 1
+    fi
 
-        if command -v matugen &> /dev/null; then
-            print_info "Generating system colors with matugen..."
-            matugen image "$storagepath" --prefer darkness || matugen image "$storagepath" || true
-        fi
-
-        if [ -s "$HOME/.config/swaync/style-gen.css" ]; then
-            cp "$HOME/.config/swaync/style-gen.css" "$HOME/.config/swaync/style.css"
-            swaync-client -rs || true
-        fi
-
-        if command -v kitty &> /dev/null; then
-            kitty @ --to unix:@mykitty set-colors --all "$HOME/.config/kitty/colors.conf" 2>/dev/null || true
-        fi
-    }
-
-    save_wall_function
-    apply_wall_function
-    print_success "Wallpaper applied and colors generated successfully!"
 else
     print_warning "Default wallpaper not found at $default_wallpaper, skipping wallpaper setup."
 fi
 
-# ==========================================
-# 2. Safely move and clean Zsh and Oh-My-Zsh configuration
-# ==========================================
-print_info "Configuring Zsh and Oh-My-Zsh environment..."
-
-dotfiles_source_dir="$SCRIPT_DIR/zsh" 
-backup_dir="$HOME/.zsh_backup_$(date +%s)"
-zsh_items=( ".zshrc" ".zshrc.pre-oh-my-zsh" ".oh-my-zsh")
-
-if [ -d "$dotfiles_source_dir" ]; then
-    mkdir -p "$backup_dir"
-    print_info "Creating a safety backup of existing Zsh configs..."
-    
-    for item in "${zsh_items[@]}"; do
-        if [ -e "$HOME/$item" ]; then
-            cp -rf "$HOME/$item" "$backup_dir/"
-        fi
-    done
-
-    {
-        print_info "Cleaning old Zsh traces from \$HOME..."
-        for item in "${zsh_items[@]}"; do
-            rm -rf "$HOME/$item"
-        done
-
-        print_info "Copying fresh Zsh files from project..."
-        shopt -s dotglob
-        cp -rf "$dotfiles_source_dir"/. "$HOME/"
-        shopt -u dotglob
-        
-        print_success "Zsh configurations applied successfully!"
-        
-        rm -rf "$backup_dir"
-
-    } || {
-        print_error "Error occurred while setting up Zsh files! Restoring backup..."
-        
-        for item in "${zsh_items[@]}"; do
-            rm -rf "$HOME/$item"
-        done
-        
-        if [ -d "$backup_dir" ] && [ "$(ls -A "$backup_dir")" ]; then
-            cp -rf "$backup_dir"/. "$HOME/"
-            print_success "Rollback completed safely. Original files restored."
-        fi
-        
-        rm -rf "$backup_dir"
-        exit 1
-    }
-else
-    print_warning "Directory 'zsh' not found in project, skipping Zsh custom files copy."
-fi
 
 # ==========================================
-# 3. Reload Hyprland plugins
+# 2. Zsh / Oh-My-Zsh
 # ==========================================
-print_info "Reloading Hyprland plugins..."
-if command -v hyprpm &> /dev/null; then
-    hyprpm reload || true
-fi
+# Zsh, Oh-My-Zsh, and .zshrc are already installed and made idempotent by
+# setup_zsh.sh (oh-my-zsh install) and files.sh (.zshrc copy with backup).
+# Re-copying the whole zsh/ tree into $HOME here duplicated that work and
+# unnecessarily wiped/rewrote arbitrary files under $HOME, so it has been
+# removed in favor of that single source of truth.
+print_info "Zsh setup is handled by setup_zsh.sh / files.sh; nothing further to do here."
+
 
 # ==========================================
-# 4. Delete temporary project directory
+# 3. Cleanup notice
 # ==========================================
-print_info "Cleaning up installation files..."
-project_dir="$(dirname "$(realpath "$0")")"
+# Earlier versions of this script deleted the entire project/repo directory
+# automatically after installing. That is a destructive, irreversible action
+# on a directory the user did not explicitly ask to remove (it may be their
+# only clone, may contain uncommitted edits, etc.), so it is no longer done
+# automatically. Ask explicitly and require a typed confirmation instead.
+project_dir="$SCRIPT_DIR"
+
 if [ -d "$project_dir" ] && [ "$project_dir" != "$HOME" ] && [ "$project_dir" != "/" ]; then
-    rm -rf "$project_dir"
-    print_success "Project directory cleaned up successfully."
+    echo -ne "\n"
+    print_warning "This will permanently delete the dotfiles project directory:"
+    print_warning "  $project_dir"
+    read -r -p "Type 'delete' to remove it, or press Enter to keep it: " confirm_delete
+    if [ "$confirm_delete" = "delete" ]; then
+        rm -rf "${project_dir:?}"
+        print_success "Project directory removed."
+    else
+        print_info "Keeping project directory. You can remove it manually later if desired."
+    fi
 fi
 
+
 # ==========================================
-# 5. Final reboot prompt
+# 4. Final reboot prompt
 # ==========================================
 echo -ne "\n"
-read -t 5 -p "Installation is fully completed! Do you want to reboot now? (y/N) [Auto-abort in 5s]: " reboot_choice || reboot_choice="n"
+
+read -r -t 5 -p \
+    "Installation is fully completed! Do you want to reboot now? (y/N) [Auto-abort in 5s]: " \
+    reboot_choice || reboot_choice="n"
+
 case "$reboot_choice" in
     [yY][eE][sS]|[yY])
         print_info "Rebooting system..."
-        systemctl reboot
+        sudo systemctl reboot
         ;;
+
     *)
         print_success "Setup finished! You can reboot manually later."
         ;;

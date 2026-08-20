@@ -6,11 +6,10 @@ hyprlock
 hypridle
 
 # ==========================================
-# UI
+# Bary / Quickshell
 # ==========================================
-waybar
-wlogout
-swaync
+quickshell
+awww
 
 # ==========================================
 # Terminal
@@ -60,8 +59,6 @@ grim
 slurp
 swappy
 
-swww
-
 zsh-autosuggestions
 zsh-syntax-highlighting
 
@@ -76,15 +73,22 @@ jq
 zip
 unzip
 
-
+# ==========================================
+# Build Tools
+# ==========================================
 base-devel
 cmake
 meson
 ninja
 pkgconf
 
+# ==========================================
+# Fonts
+# ==========================================
 noto-fonts
 noto-fonts-emoji
+
+ttf-victor-mono
 
 ttf-iosevka-nerd
 
@@ -93,8 +97,13 @@ ttf-nerd-fonts-symbols-mono
 
 otf-font-awesome
 
+# ==========================================
+# SDDM / Qt
+# ==========================================
 sddm
 
 qt6-svg
 qt6-declarative
+qt6-multimedia
+qt6-virtualkeyboard
 qt5-quickcontrols2
