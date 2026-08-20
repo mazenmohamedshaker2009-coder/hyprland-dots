@@ -102,8 +102,12 @@ otf-font-awesome
 # ==========================================
 sddm
 
-qt6-svg
+
+qt6-base
 qt6-declarative
+qt6-svg
+qt6-wayland
+qt6-5compat
 qt6-multimedia
 qt6-virtualkeyboard
 qt5-quickcontrols2

@@ -15,7 +15,9 @@ setup_files() {
     mkdir -p "$HOME/.config"
     mkdir -p "$BACKUP_DIR"
 
-    # 1. Copy all items inside the config folder to ~/.config/
+    # ==========================================
+    # 1. Copy all items inside the config folder
+    # ==========================================
     if [ -d "$CONFIG_DIR" ]; then
         for d in "$CONFIG_DIR"/*; do
             if [ -e "$d" ]; then
@@ -38,7 +40,9 @@ setup_files() {
         print_warning "Config directory not found at $CONFIG_DIR"
     fi
 
+    # ==========================================
     # 2. Copy .zshrc directly to $HOME
+    # ==========================================
     ZSH_SRC_DIR="$SCRIPT_DIR/zsh"
 
     if [ -f "$ZSH_SRC_DIR/.zshrc" ]; then
@@ -57,7 +61,9 @@ setup_files() {
         print_warning ".zshrc not found in $ZSH_SRC_DIR"
     fi
 
-    # 3. Link all Hyprland scripts to /usr/local/bin
+    # ==========================================
+    # 3. Link all Hyprland scripts
+    # ==========================================
     print_info "Setting up and symlinking system scripts..."
 
     SCRIPTS_DIR="$HOME/.config/hypr/scripts"
@@ -68,7 +74,7 @@ setup_files() {
                 # Get script name without extension
                 script_name=$(basename "$script" .sh)
 
-                # Ensure the script is executable before linking it into PATH
+                # Ensure the script is executable
                 chmod +x "$script"
 
                 # Create symlink in /usr/local/bin
@@ -81,7 +87,9 @@ setup_files() {
         print_warning "Scripts directory not found at $SCRIPTS_DIR"
     fi
 
-    # 4. Link Bary module scripts to /usr/local/bin
+    # ==========================================
+    # 4. Link Bary module commands
+    # ==========================================
     print_info "Setting up Bary module commands..."
 
     BARY_MODULES_DIR="$HOME/.config/quickshell/modules"
@@ -108,6 +116,79 @@ setup_files() {
         done
     else
         print_warning "Bary modules directory not found at $BARY_MODULES_DIR"
+    fi
+
+    # ==========================================
+    # 5. Move wallpapers to ~/Wallpapers
+    # ==========================================
+    print_info "Setting up wallpaper directory..."
+
+    WALLPAPER_SOURCE="$HOME/.config/hypr/wallpapers"
+    WALLPAPER_DEST="$HOME/Wallpapers"
+
+    mkdir -p "$WALLPAPER_DEST"
+
+    if [ -d "$WALLPAPER_SOURCE" ]; then
+        wallpaper_found=false
+
+        while IFS= read -r -d '' wallpaper; do
+            filename="$(basename "$wallpaper")"
+            destination="$WALLPAPER_DEST/$filename"
+
+            # Do not overwrite an existing wallpaper
+            if [ -e "$destination" ]; then
+                print_warning "Wallpaper already exists, keeping destination copy: $filename"
+            else
+                mv "$wallpaper" "$destination"
+                print_success "Moved wallpaper: $filename -> ~/Wallpapers/"
+            fi
+
+            wallpaper_found=true
+        done < <(
+            find "$WALLPAPER_SOURCE" -maxdepth 1 -type f \
+                \( \
+                    -iname "*.jpg" \
+                    -o -iname "*.jpeg" \
+                    -o -iname "*.png" \
+                    -o -iname "*.webp" \
+                    -o -iname "*.gif" \
+                \) \
+                -print0
+        )
+
+        if [ "$wallpaper_found" = false ]; then
+            print_warning "No wallpaper files found in $WALLPAPER_SOURCE"
+        fi
+    else
+        print_warning "Wallpaper source directory not found: $WALLPAPER_SOURCE"
+    fi
+
+    # ==========================================
+    # 6. Link Bary current wallpaper to SDDM
+    # ==========================================
+    print_info "Setting up SDDM wallpaper..."
+
+    BARY_CURRENT_WALLPAPER="$HOME/.config/quickshell/data/.wallpaper"
+    SDDM_BACKGROUND="/usr/share/sddm/themes/sddm-astronaut-theme/Backgrounds/current.png"
+
+    if [ -f "$BARY_CURRENT_WALLPAPER" ]; then
+        SDDM_BACKGROUND_DIR="$(dirname "$SDDM_BACKGROUND")"
+
+        if [ -d "$SDDM_BACKGROUND_DIR" ]; then
+            sudo ln -sfn \
+                "$BARY_CURRENT_WALLPAPER" \
+                "$SDDM_BACKGROUND"
+
+            print_success "SDDM wallpaper linked successfully."
+            print_success "SDDM -> $BARY_CURRENT_WALLPAPER"
+        else
+            print_warning "SDDM background directory not found:"
+            print_warning "$SDDM_BACKGROUND_DIR"
+        fi
+    else
+        print_warning "Bary current wallpaper not found:"
+        print_warning "$BARY_CURRENT_WALLPAPER"
+        print_warning "SDDM wallpaper link will be created after Bary applies its first wallpaper."
     fi
 
     print_success "Files setup and scripts linking completed successfully."
