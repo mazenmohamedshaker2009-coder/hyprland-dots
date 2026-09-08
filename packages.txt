@@ -18,6 +18,7 @@ kitty
 zsh
 neovim
 yazi
+ytmgo
 
 # ==========================================
 # File Manager
