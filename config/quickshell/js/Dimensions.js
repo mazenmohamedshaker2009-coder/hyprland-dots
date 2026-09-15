@@ -40,6 +40,9 @@ function getDimentions ($page) {
       case "power": return [{ width: 400, height: 140},];
       break;
 
+      case "control": return [{ width: 400, height: 340},];
+      break;
+
       default: return [];
       break;
   }

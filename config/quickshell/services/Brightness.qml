@@ -4,6 +4,8 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
+import "../" 1.0
+
 Singleton {
     id: root
 
@@ -12,7 +14,16 @@ Singleton {
 
     signal changed(int value)
 
+    // الخاصية الداخلية للإضاءة التي تُرجع قيمة الخاصية العامة من Main
+    property bool brightnessInternalRequest: {
+        return Main.brightnessInternalRequest;
+    }
+
     function readValue() {
+        console.log("[Brightness] brightnessInternalRequest:", root.brightnessInternalRequest);
+        if (root.brightnessInternalRequest)
+            return
+
         reader.running = true
     }
 
@@ -29,6 +40,10 @@ Singleton {
 
         stdout: StdioCollector {
             onStreamFinished: {
+                console.log("[Brightness Reader Stream] brightnessInternalRequest:", root.brightnessInternalRequest);
+                if (root.brightnessInternalRequest)
+                    return
+
                 const newValue = parseInt(text.trim())
 
                 if (isNaN(newValue))
@@ -60,6 +75,10 @@ Singleton {
 
         stdout: SplitParser {
             onRead: data => {
+                console.log("[Brightness Monitor] brightnessInternalRequest:", root.brightnessInternalRequest);
+                if (root.brightnessInternalRequest)
+                    return
+
                 if (data.includes("intel_backlight"))
                     root.readValue()
             }

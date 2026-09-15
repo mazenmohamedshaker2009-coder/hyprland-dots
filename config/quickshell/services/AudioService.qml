@@ -4,6 +4,8 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
+import "../" 1.0
+
 Item {
     id: root
 
@@ -19,8 +21,13 @@ Item {
     property int lastMute: -1
     property int lastMicrophoneMute: -1
 
-    property bool initialized: false
+    property bool initialized: { return false } // للإبقاء على التنسيق
     property bool microphoneInitialized: false
+
+    // الخاصية الداخلية التي تُرجع قيمة الخاصية العامة من Main
+    property bool internalAudioRequest: {
+        return Main.audioInternalRequest;
+    }
 
 
     // =========================================================
@@ -35,6 +42,9 @@ Item {
 
         stdout: SplitParser {
             onRead: data => {
+                console.log("[Monitor] internalAudioRequest:", root.internalAudioRequest);
+                if (root.internalAudioRequest)
+                    return
 
                 if (data.includes("sink"))
                     volumeGetter.running = true
@@ -61,6 +71,9 @@ Item {
 
         stdout: SplitParser {
             onRead: data => {
+                console.log("[VolumeGetter] internalAudioRequest:", root.internalAudioRequest);
+                if (root.internalAudioRequest)
+                    return
 
                 const parts = data.trim().split(/\s+/)
 
@@ -131,6 +144,9 @@ Item {
 
         stdout: SplitParser {
             onRead: data => {
+                console.log("[MicrophoneGetter] internalAudioRequest:", root.internalAudioRequest);
+                if (root.internalAudioRequest)
+                    return
 
                 const isMuted = data.includes("[MUTED]")
                 const state = isMuted ? 1 : 0

@@ -98,6 +98,7 @@ setup_files() {
         ["power"]="bary-power"
         ["wallpaperSelector"]="bary-wallpapers"
         ["workSpaces"]="bary-workspaces"
+        ["controll"]="bary-controll"
     )
 
     if [ -d "$BARY_MODULES_DIR" ]; then

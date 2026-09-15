@@ -45,9 +45,7 @@ Item {
 
         radius: 22
 
-        color: mouseArea.containsMouse
-            ? Qt.alpha(Theme.background, 0.94)
-            : Theme.background
+        color: "transparent"
 
         Behavior on color {
             ColorAnimation {
@@ -55,7 +53,6 @@ Item {
             }
         }
 
-        // Subtle elevation
         Rectangle {
             anchors.fill: parent
             anchors.margins: -1
@@ -82,14 +79,19 @@ Item {
                 width: 32
                 height: 32
 
-                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenter:
+                    parent.verticalCenter
 
                 Rectangle {
                     anchors.fill: parent
 
                     radius: 13
 
-                    color: Qt.alpha(Theme.text, 0.07)
+                    color:
+                        Qt.alpha(
+                            Theme.text,
+                            0.07
+                        )
 
                     Image {
                         anchors.centerIn: parent
@@ -97,20 +99,24 @@ Item {
                         width: 20
                         height: 20
 
-                        source: "../assets/icons/notification.svg"
+                        source:
+                            "../assets/icons/notification.svg"
 
                         sourceSize.width: 24
                         sourceSize.height: 24
 
-                        fillMode: Image.PreserveAspectFit
+                        fillMode:
+                            Image.PreserveAspectFit
                     }
                 }
             }
 
             Column {
-                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenter:
+                    parent.verticalCenter
 
-                width: parent.width - 54
+                width:
+                    parent.width - 54
 
                 spacing: 4
 
@@ -119,14 +125,24 @@ Item {
 
                     text: "Notification"
 
-                    color: Qt.alpha(Theme.text, 0.5)
+                    color:
+                        Qt.alpha(
+                            Theme.text,
+                            0.5
+                        )
 
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeS
+                    font.family:
+                        Theme.fontFamily
+
+                    font.pixelSize:
+                        Theme.fontSizeS
+
                     font.bold: true
 
                     maximumLineCount: 1
-                    elide: Text.ElideRight
+
+                    elide:
+                        Text.ElideRight
 
                     clip: true
                 }
@@ -144,22 +160,37 @@ Item {
                         const body =
                             Notification.latestNotification.body || ""
 
-                        if (summary !== "" && body !== "")
-                            return summary + " — " + body
+                        if (
+                            summary !== "" &&
+                            body !== ""
+                        ) {
+                            return (
+                                summary +
+                                " — " +
+                                body
+                            )
+                        }
 
                         return summary !== ""
                             ? summary
                             : body
                     }
 
-                    color: Theme.text
+                    color:
+                        Theme.text
 
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeXS
+                    font.family:
+                        Theme.fontFamily
+
+                    font.pixelSize:
+                        Theme.fontSizeXS
+
                     font.bold: true
 
                     maximumLineCount: 1
-                    elide: Text.ElideRight
+
+                    elide:
+                        Text.ElideRight
 
                     clip: true
                 }
@@ -173,14 +204,16 @@ Item {
 
             hoverEnabled: true
 
-            cursorShape: Qt.PointingHandCursor
+            cursorShape:
+                Qt.PointingHandCursor
 
             onClicked: {
                 notify.dismissed = true
                 notificationTimer.stop()
 
                 ChangePage.changePage(
-                    Main.lastPage && Main.lastPage.trim() !== ""
+                    Main.lastPage &&
+                    Main.lastPage.trim() !== ""
                         ? Main.lastPage
                         : "homeClock"
                 )

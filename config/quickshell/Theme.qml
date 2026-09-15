@@ -1,6 +1,7 @@
 pragma Singleton
 
 import QtQuick
+import Quickshell.Io
 import "./js/Dimensions.js" as Dimensions
 import "." 1.0
 
@@ -8,6 +9,8 @@ QtObject {
 
  readonly property color background: "black"
  readonly property color text: "white"
+
+ readonly property color controllColor: JSON.parse(colorsFile.text()).primary
 
  readonly property int fontSize: 22
  readonly property int fontSizeM: 18
@@ -27,5 +30,11 @@ QtObject {
  readonly property int panelTop: 8 
  readonly property int panelBottom: 0 
 
-}
+ readonly property var colorsFile: FileView {
+     path: Qt.resolvedUrl("./generated/colors.json")
+     blockLoading: true
+     watchChanges: true
+     onFileChanged: reload()
+ }
 
+}

@@ -24,6 +24,7 @@ hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))    -- dwindle only
 hl.bind("SUPER + B", hl.dsp.exec_cmd("brave"))
 hl.bind("SUPER + Y", hl.dsp.exec_cmd("kitty ytmgo"))
 hl.bind("SUPER + K", hl.dsp.exec_cmd("bary-wallpapers"))
+hl.bind("SUPER + I", hl.dsp.exec_cmd("bary-controll"))
 hl.bind("SUPER + F", hl.dsp.exec_cmd("screenshot"))
 hl.bind("SUPER + X", hl.dsp.exec_cmd("bary-power"))
 hl.bind("SUPER + L", hl.dsp.exec_cmd("hyprlock"))

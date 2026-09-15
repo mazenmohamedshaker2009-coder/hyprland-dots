@@ -13,7 +13,6 @@ FocusScope {
 
     focus: visible
 
-    // دالة موحدة لتنفيذ الأكشن بناءً على العنصر المحدد حالياً
     function triggerSelectedAction() {
         console.log("SELECT ACTION TRIGGERED:", currentIndex)
 

@@ -7,7 +7,7 @@ import Quickshell.Wayland
 import "." 1.0
 import "components"
 import "components/osd"
-
+import "components/controlles"
 
 ShellRoot {
 
@@ -18,6 +18,7 @@ ShellRoot {
     PanelWindow {
         id: root
 
+        focusable: true
         aboveWindows: true
         exclusiveZone: 44
 
@@ -48,19 +49,19 @@ ShellRoot {
         // BARY STARTUP GREETING
         // ========================================================
 
-Process {
-    id: startupNotification
+        Process {
+            id: startupNotification
 
-    command: [
-        "sh",
-        "-c",
-        "notify-send -a Bary 'Hello' \"Welcome, $USER\""
-    ]
+            command: [
+                "sh",
+                "-c",
+                "notify-send -a Bary 'Hello' \"Welcome, $USER\""
+            ]
 
-    Component.onCompleted: {
-        running = true
-    }
-}
+            Component.onCompleted: {
+                running = true
+            }
+        }
 
 
         Item {
@@ -69,46 +70,76 @@ Process {
             anchors.fill: parent
 
 
-            Rectangle {
+            // ========================================================
+            // BARY MAIN PANEL BACKGROUND (Using ClippingRectangle & Corner Masks)
+            // ========================================================
+            
+            ClippingRectangle {
                 id: rect
 
                 anchors.horizontalCenter: parent.horizontalCenter
-
                 y: 0
 
                 width: Theme.panelWidth
-
                 implicitHeight: Theme.panelHeight
                 height: implicitHeight
 
                 color: Theme.panelBackground
 
-                radius: Theme.radius
-
-                topLeftRadius:
-                    Theme.radiusTop !== undefined
-                    ? Theme.radiusTop
-                    : Theme.radius
-
-                topRightRadius:
-                    Theme.radiusTop !== undefined
-                    ? Theme.radiusTop
-                    : Theme.radius
-
-                bottomLeftRadius:
-                    Theme.radiusBottom !== undefined
-                    ? Theme.radiusBottom
-                    : Theme.radius
-
-                bottomRightRadius:
-                    Theme.radiusBottom !== undefined
-                    ? Theme.radiusBottom
-                    : Theme.radius
-
-                clip: true
+                // تطبيق الزوايا السفلية العادية
+                radius: Theme.radius !== undefined ? Theme.radius : 12
 
                 layer.enabled: true
                 layer.smooth: true
+
+
+                // =================================================
+                // INVERTED TOP CORNERS (الزوايا المقعرة العلوية)
+                // =================================================
+
+                // الزاوية المقعرة اليسرى العلوية
+                Item {
+                    width: 12
+                    height: 12
+                    x: 0
+                    y: 0
+                    
+                    Rectangle {
+                        anchors.fill: parent
+                        color: "transparent"
+                        
+                        Rectangle {
+                            width: 24
+                            height: 24
+                            radius: 12
+                            color: root.color // نفس لون الشاشة الخلفي لتفريغ الزاوية
+                            anchors.right: parent.right
+                            anchors.bottom: parent.bottom
+                        }
+                    }
+                }
+
+                // الزاوية المقعرة اليمنى العلوية
+                Item {
+                    width: 12
+                    height: 12
+                    anchors.right: parent.right
+                    y: 0
+                    
+                    Rectangle {
+                        anchors.fill: parent
+                        color: "transparent"
+                        
+                        Rectangle {
+                            width: 24
+                            height: 24
+                            radius: 12
+                            color: root.color
+                            anchors.left: parent.left
+                            anchors.bottom: parent.bottom
+                        }
+                    }
+                }
 
 
                 // =================================================
@@ -281,6 +312,23 @@ Process {
                         ? Theme.panelPadding
                         : 0
                 }
+
+
+                // =================================================
+                // CONTROLL
+                // =================================================
+
+                Controll {
+                    visible:
+                        Main.currentPage === "control"
+
+                    anchors.fill: parent
+
+                    anchors.margins:
+                        Theme.panelPadding !== undefined
+                        ? Theme.panelPadding
+                        : 0
+                }
             }
         }
     }
@@ -338,6 +386,180 @@ Process {
 
             Power {
                 anchors.centerIn: parent
+            }
+        }
+    }
+
+
+// ========================================================
+// BLUETOOTH WINDOW
+// ========================================================
+
+PanelWindow {
+    id: bluetoothWindow
+
+    focusable: true
+
+    visible:
+        Main.bluetoothMenuShown &&
+        Main.currentPage === "control"
+
+    WlrLayershell.layer:
+        WlrLayer.Top
+
+    WlrLayershell.keyboardFocus:
+        Main.currentPage === "bluetoothMenu"
+        ? WlrKeyboardFocus.Exclusive
+        : WlrKeyboardFocus.None
+
+    aboveWindows: true
+    exclusiveZone: 0
+    color: "transparent"
+
+    implicitWidth: 340
+    implicitHeight: 290
+
+    anchors {
+        top: true
+        right: true
+    }
+
+    margins {
+        top:
+            Theme.panelTop * 0.6
+
+        right:
+            (
+                screen
+                ? screen.width -
+                    (
+                        (screen.width - Theme.panelWidth) *
+                        1.2 -
+                        0.4
+                    )
+                : 0
+            )
+    }
+
+    Rectangle {
+        anchors.fill: parent
+
+        color:
+            Theme.panelBackground
+
+        radius:
+            Theme.radius
+
+        topLeftRadius:
+            Theme.radiusTop !== undefined
+            ? Theme.radiusTop
+            : Theme.radius
+
+        topRightRadius:
+            Theme.radiusTop !== undefined
+            ? Theme.radiusTop
+            : Theme.radius
+
+        bottomLeftRadius:
+            Theme.radiusBottom !== undefined
+            ? Theme.radiusBottom
+            : Theme.radius
+
+        bottomRightRadius:
+            Theme.radiusBottom !== undefined
+            ? Theme.radiusBottom
+            : Theme.radius
+
+        clip: true
+
+        layer.enabled: true
+        layer.smooth: true
+
+        Bluetooth {
+            anchors.fill: parent
+
+            anchors.margins:
+                Theme.panelPadding !== undefined
+                ? Theme.panelPadding
+                : 10
+        }
+    }
+}
+    // ========================================================
+    // WIFI WINDOW
+    // ========================================================
+
+    PanelWindow {
+        id: wifiWindow
+
+        focusable: true 
+
+        visible: Main.wifiMenuShown && Main.currentPage === "control" 
+
+        WlrLayershell.layer:
+            WlrLayer.Top
+
+        WlrLayershell.keyboardFocus:
+            Main.currentPage === "wifiMenu"
+            ? WlrKeyboardFocus.Exclusive
+            : WlrKeyboardFocus.None
+
+        aboveWindows: true
+        exclusiveZone: 0
+        color: "transparent"
+
+        implicitWidth: 340
+        implicitHeight: 290
+
+        anchors {
+            top: true
+            left: true
+        }
+
+        margins {
+            top: Theme.panelTop * 0.6 
+            left: (screen ? screen.width - ((screen.width - Theme.panelWidth) * 1.2 - 0.4) : 0)
+        }
+
+
+        Rectangle {
+            anchors.fill: parent
+            
+            color: Theme.panelBackground
+
+            radius: Theme.radius
+
+            topLeftRadius:
+                Theme.radiusTop !== undefined
+                ? Theme.radiusTop
+                : Theme.radius
+
+            topRightRadius:
+                Theme.radiusTop !== undefined
+                ? Theme.radiusTop
+                : Theme.radius
+
+            bottomLeftRadius:
+                Theme.radiusBottom !== undefined
+                ? Theme.radiusBottom
+                : Theme.radius
+
+            bottomRightRadius:
+                Theme.radiusBottom !== undefined
+                ? Theme.radiusBottom
+                : Theme.radius
+
+            clip: true
+
+            layer.enabled: true
+            layer.smooth: true
+
+            Wifi {
+                anchors.fill: parent
+                anchors.margins:
+                    Theme.panelPadding !== undefined
+                    ? Theme.panelPadding
+                    : 10
             }
         }
     }

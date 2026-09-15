@@ -112,3 +112,9 @@ qt6-5compat
 qt6-multimedia
 qt6-virtualkeyboard
 qt5-quickcontrols2
+
+# ==========================================
+# Python / GUI
+# ==========================================
+python-pyqt6
+python-pyqt6-sip

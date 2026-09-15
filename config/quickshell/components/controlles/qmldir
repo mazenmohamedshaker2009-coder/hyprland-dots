@@ -1,0 +1,3 @@
+module components.controlles
+Wifi 1.0 Wifi.qml
+Bluetooth 1.0 Bluetooth.qml

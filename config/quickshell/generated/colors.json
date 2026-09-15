@@ -1,0 +1,11 @@
+
+{
+"background": "#131318",
+"surface": "#131318",
+"primary": "#c1c1ff",
+"secondary": "#c6c4dd",
+"tertiary": "#e9b9d3",
+"text": "#e4e1e9",
+"subtext": "#e4e1e9",
+"error": "#ffb4ab"
+}

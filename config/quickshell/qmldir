@@ -10,5 +10,4 @@ singleton BrightnessService 1.0 services/Brightness.qml
 
 singleton HyprData 1.0 modules/workSpaces/HyprData.qml
 
-
 singleton PowerService 1.0 services/PowerService.qml
